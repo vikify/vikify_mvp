@@ -1,0 +1,71 @@
+{
+  "project_info": {
+    "project_number": "641771549091",
+    "firebase_url": "https://vikifyappfinal.firebaseio.com",
+    "project_id": "vikifyappfinal",
+    "storage_bucket": "vikifyappfinal.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:641771549091:android:b1a5a34e8bc42826",
+        "android_client_info": {
+          "package_name": "com.bannuranurag.android.vikify"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "641771549091-0rmulab55gi7dtb46fipv49b3eh97lfh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bannuranurag.android.vikify",
+            "certificate_hash": "87875af2911c9a5f2260b59b6657371cb8ec53ef"
+          }
+        },
+        {
+          "client_id": "641771549091-5advqldg44nn034o5630lqg5v5pk7t0o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bannuranurag.android.vikify",
+            "certificate_hash": "a233da497ac8b1fae810d38c62fe33f11f5efb8f"
+          }
+        },
+        {
+          "client_id": "641771549091-hnlvoh9fk010ptkd9d57rd3e04clkfi2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bannuranurag.android.vikify",
+            "certificate_hash": "3d73ed39bf22192ff0e0fa0e8970398ecf2fb59b"
+          }
+        },
+        {
+          "client_id": "641771549091-85e6apghe8sbn18pciopbhjsnf4p86bq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDx2J_HGBWBYVgCyDx88aufu84vL8RBHas"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "641771549091-85e6apghe8sbn18pciopbhjsnf4p86bq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
