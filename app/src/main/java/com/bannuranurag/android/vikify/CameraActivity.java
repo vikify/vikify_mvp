@@ -1,5 +1,6 @@
 package com.bannuranurag.android.vikify;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -34,6 +36,8 @@ public class CameraActivity extends AppCompatActivity {
     private StorageReference mStorageRef;
     File mfile;
     File mVideoFileForUpload;
+    TextView mTextViewProg;
+    String mCreatorUID;
 
 
     @Override
@@ -42,10 +46,12 @@ public class CameraActivity extends AppCompatActivity {
         setContentView(R.layout.activity_camera);
 
         mStorageRef=FirebaseStorage.getInstance().getReference();
+
         cameraView=findViewById(R.id.camera);
         mButton=findViewById(R.id.picture);
         cameraView.setFacing(Facing.FRONT);
         mUButton=findViewById(R.id.uploadBtn);
+        mTextViewProg=findViewById(R.id.textViewprog);
 //        mImageView=findViewById(R.id.imageView);
         mVideoView=findViewById(R.id.videoView);
         stopBtn=findViewById(R.id.stopbtn);
@@ -95,6 +101,11 @@ public class CameraActivity extends AppCompatActivity {
             }
         });
 
+        Intent mIntent=getIntent();
+       String uid= mIntent.getStringExtra("CreatorUID");
+       passCreatorUID(uid);
+        Log.v("CAMUID","UID"+uid);
+
     }
     @Override
     protected void onResume() {
@@ -121,9 +132,15 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
+    private String passCreatorUID(String UID){
+        mCreatorUID= UID;
+        Log.v("MEthod","UID"+mCreatorUID);
+        return mCreatorUID;
+    }
+
     private void sendDataToFirebase(String filePath){
         Uri fileUpload = Uri.fromFile(new File(filePath));
-        StorageReference mVideoRef= mStorageRef.child("videos/videos/");
+        StorageReference mVideoRef= mStorageRef.child("videos/"+mCreatorUID);
 
         mVideoRef.putFile(fileUpload)
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -149,9 +166,13 @@ public class CameraActivity extends AppCompatActivity {
         long uploadBytes=taskSnapshot.getBytesTransferred();
 
         long progress=(uploadBytes*100)/FileSize;
+        String prog= Long.toString(progress);
 
         ProgressBar progressBar=findViewById(R.id.progress_bar);
         progressBar.setProgress((int)progress);
+        mTextViewProg.setText(prog);
+
+
     }
 
 
