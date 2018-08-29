@@ -5,7 +5,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    tools:context=".CameraActivity">
+    tools:context=".Camera">
 
     <com.otaliastudios.cameraview.CameraView
         android:id="@+id/camera"
@@ -14,7 +14,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="16dp"
+        android:id="@+id/progress_bar"
+        android:max="100"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp"
+        style="?android:attr/progressBarStyleHorizontal"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -41,13 +49,18 @@
             android:layout_gravity="right"
             android:layout_height="wrap_content"
             android:text="Stop" />
-    </LinearLayout>
 
-    <VideoView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/videoView"
-        />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Upload"
+            android:id="@+id/uploadBtn"/>
+        <VideoView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/videoView"
+            />
+    </LinearLayout>
 
 
 </LinearLayout>

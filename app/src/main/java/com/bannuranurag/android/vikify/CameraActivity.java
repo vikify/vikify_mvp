@@ -3,14 +3,22 @@ package com.bannuranurag.android.vikify;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.otaliastudios.cameraview.CameraListener;
 import com.otaliastudios.cameraview.CameraView;
 import com.otaliastudios.cameraview.Facing;
@@ -18,14 +26,14 @@ import com.otaliastudios.cameraview.Facing;
 import java.io.File;
 
 public class CameraActivity extends AppCompatActivity {
-
     CameraView cameraView;
     ImageView mImageView;
-    Button mButton;
+    Button mButton,mUButton;
     VideoView mVideoView;
     Button stopBtn;
-
-    File file;
+    private StorageReference mStorageRef;
+    File mfile;
+    File mVideoFileForUpload;
 
 
     @Override
@@ -33,12 +41,15 @@ public class CameraActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
+        mStorageRef=FirebaseStorage.getInstance().getReference();
         cameraView=findViewById(R.id.camera);
         mButton=findViewById(R.id.picture);
         cameraView.setFacing(Facing.FRONT);
+        mUButton=findViewById(R.id.uploadBtn);
 //        mImageView=findViewById(R.id.imageView);
         mVideoView=findViewById(R.id.videoView);
         stopBtn=findViewById(R.id.stopbtn);
+        mfile=new File(getBaseContext().getFilesDir()+"niki.mp4");
 
 
 
@@ -46,7 +57,7 @@ public class CameraActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // cameraView.capturePicture();
-                File mfile=new File(getBaseContext().getFilesDir()+"niki.mp4");
+
                 Log.v("TAG","mfile"+mfile);
                 cameraView.startCapturingVideo(mfile);
                 Toast.makeText(getApplicationContext(),"Started",Toast.LENGTH_SHORT).show();
@@ -70,14 +81,18 @@ public class CameraActivity extends AppCompatActivity {
                 // Now it holds a MP4 video.
                 Log.v("Video","Video"+video);
 //
-
+                mVideoFileForUpload=video;
                 mVideoView.setVideoURI(Uri.parse("file:///"+video.getPath()));
                 mVideoView.start();
-//
-
 
             }
 
+        });
+        mUButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendDataToFirebase(mVideoFileForUpload.getPath());
+            }
         });
 
     }
@@ -106,6 +121,38 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
+    private void sendDataToFirebase(String filePath){
+        Uri fileUpload = Uri.fromFile(new File(filePath));
+        StorageReference mVideoRef= mStorageRef.child("videos/videos/");
+
+        mVideoRef.putFile(fileUpload)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Toast.makeText(getApplicationContext(),"Successfull",Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getApplicationContext(),"UnSuccessfull",Toast.LENGTH_SHORT).show();
+            }
+        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                updateProgress(taskSnapshot);
+            }
+        });
+    }
+
+    private void updateProgress(UploadTask.TaskSnapshot taskSnapshot){
+        long FileSize=taskSnapshot.getTotalByteCount();
+        long uploadBytes=taskSnapshot.getBytesTransferred();
+
+        long progress=(uploadBytes*100)/FileSize;
+
+        ProgressBar progressBar=findViewById(R.id.progress_bar);
+        progressBar.setProgress((int)progress);
+    }
 
 
 }
