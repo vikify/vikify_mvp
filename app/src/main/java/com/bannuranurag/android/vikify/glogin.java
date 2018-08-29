@@ -62,6 +62,7 @@ public class glogin extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
+
         //Toast.makeText(getApplicationContext(),"Logged in already",Toast.LENGTH_SHORT).show();
         super.onStart();
         FirebaseUser currentUser=mAuth.getCurrentUser();

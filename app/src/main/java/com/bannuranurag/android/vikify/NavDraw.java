@@ -29,6 +29,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -38,24 +40,26 @@ import java.util.List;
 public class NavDraw extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private RecyclerView mRecycleViewVertical,mRecyclerViewHorizontal;
-    private RecyclerView.LayoutManager mLayoutManager,mLayoutManagerhorizontal;
-    private RecyclerView.Adapter mAdapter,mHAdapter;
+    private RecyclerView mRecycleViewVertical;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private RecyclerView.Adapter mAdapter;
 
     private List<DataClass> movieList = new ArrayList<>();
     private List<HorizontalClass> yearList= new ArrayList<>();
 
-    private static final String TAG="NAVDrawer";
+    private static final String TAG="State";
 //    private String myDataset[]={"Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW"};
     AlertDialog.Builder builder;
+    FirebaseAuth.AuthStateListener mAuthListener;
     GoogleSignInClient mGoogleSignInClient;
     TextView mTextViewName,mTextViewEmail;
     ImageView mImageView;
-
+    FirebaseUser user;
     @Override
     protected void onResume() {
         Log.v(TAG,"OnResume");
         super.onResume();
+
     }
 
 
@@ -83,6 +87,11 @@ public class NavDraw extends AppCompatActivity
         setContentView(R.layout.activity_nav_draw);
         Log.v(TAG,"OnCreate");
 
+
+
+//        String Uid= FirebaseAuth.getInstance().getUid();
+        user = FirebaseAuth.getInstance().getCurrentUser();
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -105,11 +114,14 @@ public class NavDraw extends AppCompatActivity
             String personName = acct.getDisplayName();
             String personGivenName = acct.getGivenName();
             String personFamilyName = acct.getFamilyName();
+            String token=acct.getIdToken();
             String personEmail = acct.getEmail();
             String personId = acct.getId();
             Uri personPhoto = acct.getPhotoUrl();
             mTextViewName.setText(personName);
             mTextViewEmail.setText(personEmail);
+
+
             try {
                 URL mUrl=new URL(personPhoto.toString());
                 GlideApp
@@ -123,6 +135,8 @@ public class NavDraw extends AppCompatActivity
             }
 
         }
+
+
 
         prepareMovieData();
         prepareYearData();
@@ -177,8 +191,13 @@ public class NavDraw extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.goToVideoList) {
+            Intent mIntent = new Intent(getApplicationContext(),CameraActivity.class);
+            FirebaseUser camUser = FirebaseAuth.getInstance().getCurrentUser();
+            String camuid=camUser.getUid();
+            mIntent.putExtra("CreatorUID",camuid);//Get the user UID while recording
+            Log.v("CAMERA79","CAM"+camuid);
+            startActivity(mIntent);
         }
 
         return super.onOptionsItemSelected(item);
@@ -229,6 +248,7 @@ public class NavDraw extends AppCompatActivity
         return true;
     }
 
+
     private void signOut() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -238,7 +258,10 @@ public class NavDraw extends AppCompatActivity
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
+
                         // ...Toas
+                        FirebaseUser user1=FirebaseAuth.getInstance().getCurrentUser();
+                        Log.v("CURRENTUSER","USER"+user1.getUid());
                         Toast.makeText(getApplicationContext(),"SignedOut",Toast.LENGTH_SHORT).show();
                         Intent mIntent=new Intent(getApplicationContext(),glogin.class);
                         startActivity(mIntent);
@@ -247,73 +270,74 @@ public class NavDraw extends AppCompatActivity
                 });
     }
     private void prepareMovieData() {
-        DataClass movie = new DataClass("Mad Max: Fury Road", "Action & Adventure", "2015");
+        DataClass movie = new DataClass("Higher Studies", "MS/phd CSE US", "2015");
         movieList.add(movie);
 
-         movie = new DataClass("Mad Max: Fury Road", "Action & Adventure", "2015");
+         movie = new DataClass("Startup stories", "Food tech startup technology", "2015");
         movieList.add(movie);
 
-         movie = new DataClass("Mad Max: Fury Road", "Action & Adventure", "2015");
+         movie = new DataClass("Finance sector", "Equity finance research", "2015");
         movieList.add(movie);
 
-        movie = new DataClass("Mad Max: Fury Road", "Action & Adventure", "2015");
+        movie = new DataClass("Higher Studies", "MS/phd CSE US", "2015");
         movieList.add(movie);
-        movie = new DataClass("Mad Max: Fury Road", "Action & Adventure", "2015");
+        movie = new DataClass("Startup stories", "Food tech startup technology", "2015");
         movieList.add(movie);
-        movie = new DataClass("Mad Max: Fury Road", "Action & Adventure", "2015");
+        movie = new DataClass("Finance sector", "Equity finance research", "2015");
         movieList.add(movie);
-        movie = new DataClass("Mad Max: Fury Road", "Action & Adventure", "2015");
+        movie = new DataClass("Higher Studies", "MS/phd CSE US", "2015");
         movieList.add(movie);
-        movie = new DataClass("Mad Max: Fury Road", "Action & Adventure", "2015");
+        movie = new DataClass("Startup stories", "Food tech startup technology", "2015");
         movieList.add(movie);
-        movie = new DataClass("Mad Max: Fury Road", "Action & Adventure", "2015");
+        movie = new DataClass("Finance sector", "Equity finance research", "2015");
         movieList.add(movie);
-        movie = new DataClass("Mad Max: Fury Road", "Action & Adventure", "2015");
+        movie = new DataClass("Higher Studies", "MS/phd CSE US", "2015");
         movieList.add(movie);
-        movie = new DataClass("Mad Max: Fury Road", "Action & Adventure", "2015");
+        movie = new DataClass("Startup stories", "Food tech startup technology", "2015");
         movieList.add(movie);
-        movie = new DataClass("Mad Max: Fury Road", "Action & Adventure", "2015");
+        movie = new DataClass("Finance sector", "Equity finance research", "2015");
         movieList.add(movie);
-        movie = new DataClass("Mad Max: Fury Road", "Action & Adventure", "2015");
+        movie = new DataClass("Higher Studies", "MS/phd CSE US", "2015");
         movieList.add(movie);
-        movie = new DataClass("Mad Max: Fury Road", "Action & Adventure", "2015");
+        movie = new DataClass("Startup stories", "Food tech startup technology", "2015");
         movieList.add(movie);
-        movie = new DataClass("Mad Max: Fury Road", "Action & Adventure", "2015");
+        movie = new DataClass("Finance sector", "Equity finance research", "2015");
         movieList.add(movie);
-        movie = new DataClass("Mad Max: Fury Road", "Action & Adventure", "2015");
+        movie = new DataClass("Higher Studies", "MS/phd CSE US", "2015");
         movieList.add(movie);
 
     }
 
     public void prepareYearData(){
-        HorizontalClass hClass=new HorizontalClass("2015");
+        HorizontalClass hClass=new HorizontalClass("Creator");
         yearList.add(hClass);
 
-        hClass=new HorizontalClass("2016");
+        hClass=new HorizontalClass("Creator");
         yearList.add(hClass);
 
-        hClass=new HorizontalClass("2017");
+        hClass=new HorizontalClass("Creator");
         yearList.add(hClass);
 
-        hClass=new HorizontalClass("2018");
+        hClass=new HorizontalClass("Creator");
         yearList.add(hClass);
 
-        hClass=new HorizontalClass("2016");
+        hClass=new HorizontalClass("Creator");
         yearList.add(hClass);
 
-        hClass=new HorizontalClass("2017");
+        hClass=new HorizontalClass("Creator");
         yearList.add(hClass);
 
-        hClass=new HorizontalClass("2018");
+        hClass=new HorizontalClass("Creator");
         yearList.add(hClass);
-        hClass=new HorizontalClass("2016");
-        yearList.add(hClass);
-
-        hClass=new HorizontalClass("2017");
+        hClass=new HorizontalClass("Creator");
         yearList.add(hClass);
 
-        hClass=new HorizontalClass("2018");
-        yearList.add(hClass);   
+        hClass=new HorizontalClass("Creator");
+        yearList.add(hClass);
+
+        hClass=new HorizontalClass("Creator");
+        yearList.add(hClass);
 
     }
+
 }
