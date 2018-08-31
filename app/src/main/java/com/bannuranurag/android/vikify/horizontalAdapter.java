@@ -1,6 +1,7 @@
 package com.bannuranurag.android.vikify;
 
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,7 @@ public class horizontalAdapter extends RecyclerView.Adapter<horizontalAdapter.My
 
     public static class MyViewHolder extends RecyclerView.ViewHolder{
         public TextView year;
+        public CardView mTagsCard;
 
         public MyViewHolder(View view) {
             super(view);
@@ -50,7 +52,6 @@ public class horizontalAdapter extends RecyclerView.Adapter<horizontalAdapter.My
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         HorizontalClass dataClass = yearList.get(position);
-        MyViewHolder myholder= (MyViewHolder) holder;
         holder.year.setText(dataClass.getmYear());
 
     }

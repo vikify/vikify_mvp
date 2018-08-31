@@ -40,6 +40,7 @@ public class CameraActivity extends AppCompatActivity {
     String mCreatorUID;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,9 +139,12 @@ public class CameraActivity extends AppCompatActivity {
         return mCreatorUID;
     }
 
+
     private void sendDataToFirebase(String filePath){
         Uri fileUpload = Uri.fromFile(new File(filePath));
-        StorageReference mVideoRef= mStorageRef.child("videos/"+mCreatorUID);
+        StorageReference mVideoRef= mStorageRef.child("videos/"+mCreatorUID+"uniqueTimeStamp"+System.currentTimeMillis()/1000);  //Current time stamp in UTC
+
+
 
         mVideoRef.putFile(fileUpload)
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -160,6 +164,7 @@ public class CameraActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void updateProgress(UploadTask.TaskSnapshot taskSnapshot){
         long FileSize=taskSnapshot.getTotalByteCount();
