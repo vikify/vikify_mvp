@@ -29,23 +29,34 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:textColor="@color/title"
-                android:paddingBottom="16dp"
-                android:textSize="16sp"
+                android:paddingBottom="14dp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
+
+
+
 
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:orientation="vertical"
                 android:layout_height="fill_parent">
 
-                <TextView
-                    android:id="@+id/genre"
-                    android:layout_width="match_parent"
+                <!--<TextView-->
+                    <!--android:id="@+id/genre"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:padding="5dp"-->
+                    <!--android:textStyle="italic"-->
+                    <!--android:layout_marginBottom="10dp"-->
+                    <!--android:background="@drawable/rectangular_border"-->
+                    <!--android:layout_below="@id/title" />-->
+
+                <android.support.v7.widget.RecyclerView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:layout_marginBottom="10dp"
-                    android:background="@drawable/rectangular_border"
-                    android:layout_below="@id/title" />
+                    android:id="@+id/genre"
+
+                    />
 
                 <include layout="@layout/my_horizontal_view" />
             </LinearLayout>

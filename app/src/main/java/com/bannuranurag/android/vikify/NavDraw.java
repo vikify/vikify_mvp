@@ -46,6 +46,7 @@ public class NavDraw extends AppCompatActivity
 
     private List<DataClass> movieList = new ArrayList<>();
     private List<HorizontalClass> yearList= new ArrayList<>();
+    private List<String> tags= new ArrayList<>();
 
     private static final String TAG="State";
 //    private String myDataset[]={"Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW"};
@@ -140,6 +141,7 @@ public class NavDraw extends AppCompatActivity
 
         prepareMovieData();
         prepareYearData();
+        prepareTagsData();
 
         mRecycleViewVertical=findViewById(R.id.verticle_recycle);
 
@@ -158,7 +160,7 @@ public class NavDraw extends AppCompatActivity
 //        mRecyclerViewHorizontal.setLayoutManager(mLayoutManagerhorizontal);
 
 
-        mAdapter=new verticalAdapter(getApplicationContext(),movieList,yearList);
+        mAdapter=new verticalAdapter(getApplicationContext(),movieList,yearList,tags);
 //        mHAdapter=new horizontalAdapter(yearList);
 
         mRecycleViewVertical.setAdapter(mAdapter);
@@ -269,6 +271,22 @@ public class NavDraw extends AppCompatActivity
                     }
                 });
     }
+
+    private void prepareTagsData(){
+        tags.add("Tags1");
+        tags.add("Tags2");
+        tags.add("Tags3");
+        tags.add("Tags4");
+        tags.add("Tags5");
+        tags.add("Tags1");
+        tags.add("Tags2");
+        tags.add("Tags3");
+        tags.add("Tags4");
+        tags.add("Tags5");
+        Log.v("Array","ArrayList123"+tags.size());
+
+    }
+
     private void prepareMovieData() {
         DataClass movie = new DataClass("Higher Studies", "MS/phd CSE US", "2015");
         movieList.add(movie);
