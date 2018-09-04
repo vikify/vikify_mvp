@@ -1,5 +1,7 @@
 package com.bannuranurag.android.vikify;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -7,9 +9,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,12 +38,18 @@ public class CameraActivity extends AppCompatActivity {
     ImageView mImageView;
     Button mButton,mUButton;
     VideoView mVideoView;
-    Button stopBtn;
+    Button stopBtn, replayBtn;
     private StorageReference mStorageRef;
     File mfile;
     File mVideoFileForUpload;
     TextView mTextViewProg;
     String mCreatorUID;
+    Uri mVideoPath;
+    ImageView mCancelVector;
+    FrameLayout mFrameLayout;
+    ProgressBar progressBar;
+    LinearLayout mBtnLayout;
+    EditText mVideoName;
 
 
 
@@ -52,11 +64,22 @@ public class CameraActivity extends AppCompatActivity {
         mButton=findViewById(R.id.picture);
         cameraView.setFacing(Facing.FRONT);
         mUButton=findViewById(R.id.uploadBtn);
+        replayBtn=findViewById(R.id.replayBtn);
         mTextViewProg=findViewById(R.id.textViewprog);
+        mCancelVector=findViewById(R.id.cancelIcon);
+        mFrameLayout=findViewById(R.id.replayFrame);
+        mFrameLayout.setVisibility(View.GONE);
+        progressBar=findViewById(R.id.progress_bar);
+        mBtnLayout=findViewById(R.id.btnLayout);
 //        mImageView=findViewById(R.id.imageView);
         mVideoView=findViewById(R.id.videoView);
+//        mVideoView.setVisibility(View.GONE);
+//        mCancelVector.setVisibility(View.GONE);
+        mVideoName=findViewById(R.id.videoName);
+
         stopBtn=findViewById(R.id.stopbtn);
         mfile=new File(getBaseContext().getFilesDir()+"niki.mp4");
+
 
 
 
@@ -68,6 +91,12 @@ public class CameraActivity extends AppCompatActivity {
                 Log.v("TAG","mfile"+mfile);
                 cameraView.startCapturingVideo(mfile);
                 Toast.makeText(getApplicationContext(),"Started",Toast.LENGTH_SHORT).show();
+                if(mUButton.getVisibility()==View.GONE){
+                    mUButton.setVisibility(View.VISIBLE);
+                }
+                if(replayBtn.getVisibility()==View.GONE){
+                    replayBtn.setVisibility(View.VISIBLE);
+                }
 
 
             }
@@ -78,6 +107,44 @@ public class CameraActivity extends AppCompatActivity {
             public void onClick(View v) {
                 cameraView.stopCapturingVideo();
                 Toast.makeText(getApplicationContext(),"Stopped",Toast.LENGTH_SHORT).show();
+                if(mUButton.getVisibility()==View.GONE){
+                    mUButton.setVisibility(View.VISIBLE);
+                }
+                if(replayBtn.getVisibility()==View.GONE){
+                    replayBtn.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        replayBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mVideoPath!=null) {
+                    cameraView.setVisibility(View.GONE);
+                    mVideoView.setVideoURI(mVideoPath);
+                    mFrameLayout.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.GONE);
+                    mBtnLayout.setVisibility(View.GONE);
+
+
+
+                    Log.v("VideoURI", "VideoURI" + mVideoPath);
+                }
+                else
+                {
+                    Toast.makeText(getApplicationContext(),"Record a video first",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        mCancelVector.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                progressBar.setVisibility(View.VISIBLE);
+                mBtnLayout.setVisibility(View.VISIBLE);
+                cameraView.setVisibility(View.VISIBLE);
+                mCancelVector.setVisibility(View.GONE);
+                mFrameLayout.setVisibility(View.GONE);
             }
         });
 
@@ -91,6 +158,7 @@ public class CameraActivity extends AppCompatActivity {
                 mVideoFileForUpload=video;
                 mVideoView.setVideoURI(Uri.parse("file:///"+video.getPath()));
                 mVideoView.start();
+                sendVideoPath(Uri.parse("file:///"+video.getPath()));
 
             }
 
@@ -98,7 +166,28 @@ public class CameraActivity extends AppCompatActivity {
         mUButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendDataToFirebase(mVideoFileForUpload.getPath());
+                if(mVideoPath!=null) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(CameraActivity.this);
+                    LayoutInflater inflater = CameraActivity.this.getLayoutInflater();
+
+
+                    builder.setView(inflater.inflate(R.layout.dialog_layout, null))
+                            .setPositiveButton(R.string.Sendname, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Toast.makeText(CameraActivity.this, "Submitted", Toast.LENGTH_SHORT).show();
+                                    String videoName= mVideoName.getText().toString();
+                                    replayBtn.setVisibility(View.GONE);
+                                    mUButton.setVisibility(View.GONE);
+                                    Toast.makeText(CameraActivity.this, videoName, Toast.LENGTH_SHORT).show();
+                                    sendDataToFirebase(mVideoFileForUpload.getPath());
+                                }
+                            }).show();
+                }
+                else{
+                    Toast.makeText(getApplicationContext(),"Record a video first",Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
 
@@ -173,12 +262,16 @@ public class CameraActivity extends AppCompatActivity {
         long progress=(uploadBytes*100)/FileSize;
         String prog= Long.toString(progress);
 
-        ProgressBar progressBar=findViewById(R.id.progress_bar);
+
         progressBar.setProgress((int)progress);
         mTextViewProg.setText(prog);
 
 
     }
 
+    private Uri sendVideoPath(Uri videoPath){
+        mVideoPath=videoPath;
+        return mVideoPath;
+    }
 
 }

@@ -15,9 +15,10 @@ import java.util.List;
 public class verticalAdapter extends RecyclerView.Adapter<verticalAdapter.MyViewHolder> {
 
     Context mContext;
-    private List<DataClass> moviesList;
+    private List<String> mNameList;
     private List<HorizontalClass> mYearList;
-    private List<String> mtags;
+    private List<String> mtags,mFinalTags;
+    private RecyclerView.Adapter mAdapter;
 
     private static RecyclerView horizontalList;
     private static RecyclerView horizontalTagList;
@@ -50,11 +51,12 @@ public class verticalAdapter extends RecyclerView.Adapter<verticalAdapter.MyView
         }
     }
 
-    public verticalAdapter(Context mContext, List<DataClass> moviesList, List<HorizontalClass> mYearList, List<String> mtags) {
+    public verticalAdapter(Context mContext, List<String> nameList, List<HorizontalClass> mYearList, List<String> mtags) {
         this.mContext = mContext;
-        this.moviesList = moviesList;
+        mNameList = nameList;
         this.mYearList = mYearList;
         this.mtags = mtags;
+        Log.v("Vertical Adapter","hello"+this.mtags);
     }
 
     @NonNull
@@ -68,14 +70,56 @@ public class verticalAdapter extends RecyclerView.Adapter<verticalAdapter.MyView
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        DataClass dataClass = moviesList.get(position);
-        holder.title.setText(dataClass.getTitle());
+
+        String mString=mNameList.get(position);
+        holder.title.setText(mString);
 //        holder.genre.setText(dataClass.getGenre());
         holder.mHorizontalAdapter.setData(mYearList);
         try{
             String mData= mtags.get(position);
             //holder.Tags.setText(mData);
-            holder.mHorizontalTagAdapter.setData(mtags);
+
+
+            switch(position){
+                case 0:
+                    mFinalTags=mtags.subList(0,8);
+                    holder.mHorizontalTagAdapter.setData(mFinalTags);
+                    Log.v("TAG","TotalTags to be passed"+mtags.subList(0,7)+"pornpos: "+position);
+                    break;
+                case 1:
+                    mFinalTags=mtags.subList(8,14);
+                    holder.mHorizontalTagAdapter.setData(mFinalTags);
+                    Log.v("TAG","TotalTags to be passed"+mtags.subList(8,13)+"pornpos: "+position);
+                    break;
+                case 2:
+                    mFinalTags=mtags.subList(14,25);
+                    holder.mHorizontalTagAdapter.setData(mFinalTags);
+                    Log.v("TAG","TotalTags to be passed"+mtags.subList(14,23)+"pornpos: "+position);
+                    break;
+                case 3:
+                    mFinalTags=mtags.subList(25,33);
+                    holder.mHorizontalTagAdapter.setData(mFinalTags);
+                    Log.v("TAG","TotalTags to be passed"+mtags.subList(14,23)+"pornpos: "+position);
+                    break;
+                case 4:
+                    mFinalTags=mtags.subList(33,42);
+                    holder.mHorizontalTagAdapter.setData(mFinalTags);
+                    Log.v("TAG","TotalTags to be passed"+mtags.subList(14,23)+"pornpos: "+position);
+                    break;
+                case 5:
+                    mFinalTags=mtags.subList(42,49);
+                    holder.mHorizontalTagAdapter.setData(mFinalTags);
+                    Log.v("TAG","TotalTags to be passed"+mtags.subList(14,23)+"pornpos: "+position);
+                    break;
+                case 6:
+                    mFinalTags=mtags.subList(49,56);
+                    holder.mHorizontalTagAdapter.setData(mFinalTags);
+                    Log.v("TAG","TotalTags to be passed"+mtags.subList(14,23)+"pornpos: "+position);
+                    break;
+                 default:
+                     Log.v("TAG","Does it work?");
+
+            }
         }
         catch (IndexOutOfBoundsException e){
             Log.v("TAG","Out of bound exception");
@@ -90,6 +134,6 @@ public class verticalAdapter extends RecyclerView.Adapter<verticalAdapter.MyView
 
     @Override
     public int getItemCount() {
-        return moviesList.size();
+        return mNameList.size();
     }
 }
