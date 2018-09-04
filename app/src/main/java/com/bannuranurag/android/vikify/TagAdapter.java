@@ -3,6 +3,7 @@ package com.bannuranurag.android.vikify;
 import android.graphics.Color;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,7 @@ import java.util.Random;
 public class TagAdapter extends RecyclerView.Adapter<TagAdapter.MyViewHolder> {
     private List<String> tags;
 
-    Random rand=new Random();
+    Random rand = new Random();
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, an      d
@@ -23,18 +24,21 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.MyViewHolder> {
         // each data item is just a string in this case
         public TextView mTextView;
         public CardView mCardView;
+
         public MyViewHolder(View v) {
 
             super(v);
-            mTextView =v.findViewById(R.id.tagText);
-            mCardView=v.findViewById(R.id.card_view1);
+            mTextView = v.findViewById(R.id.tagText);
+            mCardView = v.findViewById(R.id.card_view1);
         }
     }
 
-    public TagAdapter(){}
+    public TagAdapter() {
+    }
+
     // Provide a suitable constructor (depends on the kind of dataset)
     public TagAdapter(List<String> mtag) {
-        mtag=tags;
+        mtag = tags;
     }
 
     public void setData(List<String> mtag) {
@@ -47,9 +51,9 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.MyViewHolder> {
     // Create new views (invoked by the layout manager)
     @Override
     public TagAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent,
-                                                     int viewType) {
+                                                      int viewType) {
         // create a new view
-        View v =  LayoutInflater.from(parent.getContext())
+        View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.tag_layout, parent, false);
 
         MyViewHolder vh = new MyViewHolder(v);
@@ -61,10 +65,12 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.MyViewHolder> {
     public void onBindViewHolder(MyViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
+
         String dataClass = tags.get(position);
         holder.mTextView.setText(dataClass);
+        Log.v("TAG23","Sex "+tags);
 
-        ((CardView)holder.mCardView).setCardBackgroundColor(Color.argb(255, rand.nextInt(256), rand.nextInt(256), rand.nextInt(256) ));
+        ((CardView) holder.mCardView).setCardBackgroundColor(Color.argb(255, rand.nextInt(256), rand.nextInt(256), rand.nextInt(256)));
 
     }
 

@@ -31,6 +31,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -43,10 +48,12 @@ public class NavDraw extends AppCompatActivity
     private RecyclerView mRecycleViewVertical;
     private RecyclerView.LayoutManager mLayoutManager;
     private RecyclerView.Adapter mAdapter;
-
-    private List<DataClass> movieList = new ArrayList<>();
+    List<String> mFinalName = new ArrayList<>();
+    List<String> mName= new ArrayList<>();
     private List<HorizontalClass> yearList= new ArrayList<>();
     private List<String> tags= new ArrayList<>();
+    private List<String> finalTags=new ArrayList<>();
+    String valueName,valueTags;
 
     private static final String TAG="State";
 //    private String myDataset[]={"Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW"};
@@ -90,9 +97,10 @@ public class NavDraw extends AppCompatActivity
 
 
 
+
 //        String Uid= FirebaseAuth.getInstance().getUid();
         user = FirebaseAuth.getInstance().getCurrentUser();
-
+        final DatabaseReference database = FirebaseDatabase.getInstance().getReference();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -113,11 +121,7 @@ public class NavDraw extends AppCompatActivity
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(getApplicationContext()); //Get all user details
         if (acct != null) {
             String personName = acct.getDisplayName();
-            String personGivenName = acct.getGivenName();
-            String personFamilyName = acct.getFamilyName();
-            String token=acct.getIdToken();
             String personEmail = acct.getEmail();
-            String personId = acct.getId();
             Uri personPhoto = acct.getPhotoUrl();
             mTextViewName.setText(personName);
             mTextViewEmail.setText(personEmail);
@@ -137,36 +141,82 @@ public class NavDraw extends AppCompatActivity
 
         }
 
+        database.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                TagClass tagClass= new TagClass();
+                Log.v(TAG,"Data89"+dataSnapshot);
+                long mNameSize=dataSnapshot.child("VikifyDatabase").child("Content-details").getChildrenCount();
+
+                for(long i=1;i<=mNameSize;i++) {
+                    String iString=Long.toString(i);
+                    long mTagSize=dataSnapshot.child("VikifyDatabase").child("Content-details").child("Category"+iString).child("Tags").getChildrenCount();
+                    valueName = dataSnapshot.child("VikifyDatabase").child("Content-details").child("Category"+iString).child("Name").getValue().toString();
+                    valueName=valueName.replaceAll("[\\[\\]]"," ");
+                    mName.add(valueName);
+                    for(long j=0;j<mTagSize;j++) {
+
+                        String jString=Long.toString(j);
+                        valueTags = dataSnapshot.child("VikifyDatabase").child("Content-details").child("Category" + iString).child("Tags").child(jString).getValue().toString();
+                        valueTags=valueTags.replaceAll("[\\{\\}]"," ");
+                        finalTags.add(valueTags);
+
+                    }
+
+                    tags=finalTags;
+                    Log.v(TAG," Mtags "+finalTags);
+                    tagClass.setmTags(tags);
+                    mFinalName=mName;
+                }
+                Log.v(TAG,"Mname12:"+mFinalName);
 
 
-        prepareMovieData();
+                mRecycleViewVertical=findViewById(R.id.verticle_recycle);
+
+
+
+                mRecycleViewVertical.setHasFixedSize(true);
+
+
+
+                //Linear layout manager
+                mLayoutManager=new LinearLayoutManager(getApplicationContext());
+
+
+
+                mRecycleViewVertical.setLayoutManager(mLayoutManager);
+
+
+
+                mAdapter=new verticalAdapter(getApplicationContext(), mFinalName,yearList,finalTags);
+
+                Log.v(TAG,"hello100"+mFinalName);
+
+
+                mRecycleViewVertical.setAdapter(mAdapter);
+
+
+
+
+
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.v(TAG,"Value69Error");
+
+            }
+
+        });
+
+
         prepareYearData();
-        prepareTagsData();
 
-        mRecycleViewVertical=findViewById(R.id.verticle_recycle);
-
-//        mRecyclerViewHorizontal=findViewById(R.id.horizontal_recycle);
-
-        mRecycleViewVertical.setHasFixedSize(true);
-//        mRecyclerViewHorizontal.setHasFixedSize(true);
-
-
-        //Linear layout manager
-        mLayoutManager=new LinearLayoutManager(getApplicationContext());
-//        mLayoutManagerhorizontal=new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.HORIZONTAL,false);
-
-
-        mRecycleViewVertical.setLayoutManager(mLayoutManager);
-//        mRecyclerViewHorizontal.setLayoutManager(mLayoutManagerhorizontal);
-
-
-        mAdapter=new verticalAdapter(getApplicationContext(),movieList,yearList,tags);
-//        mHAdapter=new horizontalAdapter(yearList);
-
-        mRecycleViewVertical.setAdapter(mAdapter);
-//        mRecyclerViewHorizontal.setAdapter(mHAdapter);
 
     }
+
+
 
     @Override
     public void onBackPressed() {
@@ -251,6 +301,7 @@ public class NavDraw extends AppCompatActivity
     }
 
 
+
     private void signOut() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -272,59 +323,8 @@ public class NavDraw extends AppCompatActivity
                 });
     }
 
-    private void prepareTagsData(){
-        tags.add("Tags1");
-        tags.add("Tags2");
-        tags.add("Tags3");
-        tags.add("Tags4");
-        tags.add("Tags5");
-        tags.add("Tags1");
-        tags.add("Tags2");
-        tags.add("Tags3");
-        tags.add("Tags4");
-        tags.add("Tags5");
-        Log.v("Array","ArrayList123"+tags.size());
 
-    }
 
-    private void prepareMovieData() {
-        DataClass movie = new DataClass("Higher Studies", "MS/phd CSE US", "2015");
-        movieList.add(movie);
-
-         movie = new DataClass("Startup stories", "Food tech startup technology", "2015");
-        movieList.add(movie);
-
-         movie = new DataClass("Finance sector", "Equity finance research", "2015");
-        movieList.add(movie);
-
-        movie = new DataClass("Higher Studies", "MS/phd CSE US", "2015");
-        movieList.add(movie);
-        movie = new DataClass("Startup stories", "Food tech startup technology", "2015");
-        movieList.add(movie);
-        movie = new DataClass("Finance sector", "Equity finance research", "2015");
-        movieList.add(movie);
-        movie = new DataClass("Higher Studies", "MS/phd CSE US", "2015");
-        movieList.add(movie);
-        movie = new DataClass("Startup stories", "Food tech startup technology", "2015");
-        movieList.add(movie);
-        movie = new DataClass("Finance sector", "Equity finance research", "2015");
-        movieList.add(movie);
-        movie = new DataClass("Higher Studies", "MS/phd CSE US", "2015");
-        movieList.add(movie);
-        movie = new DataClass("Startup stories", "Food tech startup technology", "2015");
-        movieList.add(movie);
-        movie = new DataClass("Finance sector", "Equity finance research", "2015");
-        movieList.add(movie);
-        movie = new DataClass("Higher Studies", "MS/phd CSE US", "2015");
-        movieList.add(movie);
-        movie = new DataClass("Startup stories", "Food tech startup technology", "2015");
-        movieList.add(movie);
-        movie = new DataClass("Finance sector", "Equity finance research", "2015");
-        movieList.add(movie);
-        movie = new DataClass("Higher Studies", "MS/phd CSE US", "2015");
-        movieList.add(movie);
-
-    }
 
     public void prepareYearData(){
         HorizontalClass hClass=new HorizontalClass("Creator");
