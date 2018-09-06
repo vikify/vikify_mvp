@@ -246,9 +246,15 @@ public class NavDraw extends AppCompatActivity
         if (id == R.id.goToVideoList) {
             Intent mIntent = new Intent(getApplicationContext(),CameraActivity.class);
             FirebaseUser camUser = FirebaseAuth.getInstance().getCurrentUser();
+
+            Bundle camDetails=new Bundle();
+
             String camuid=camUser.getUid();
-            mIntent.putExtra("CreatorUID",camuid);//Get the user UID while recording
+            String camName=camUser.getDisplayName();
+            camDetails.putString("CreatorUID",camuid);
+            camDetails.putString("CreatorName",camName);//Get the user UID while recording
             Log.v("CAMERA79","CAM"+camuid);
+            mIntent.putExtras(camDetails);
             startActivity(mIntent);
         }
 
