@@ -2,6 +2,7 @@ package com.bannuranurag.android.vikify;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -27,13 +28,18 @@ public class verticalAdapter extends RecyclerView.Adapter<verticalAdapter.MyView
         public TextView title, year, genre, Tags;
         private horizontalAdapter mHorizontalAdapter;
         private TagAdapter mHorizontalTagAdapter;
+        CardView mCardView;
+
 
         public MyViewHolder(View view) {
             super(view);
             Context context= view.getContext();
             title = (TextView) view.findViewById(R.id.title);
 //            genre = (TextView) view.findViewById(R.id.genre);
+            mCardView=view.findViewById(R.id.card_view);
             Tags=(TextView) view.findViewById(R.id.tagText);
+
+
 
             horizontalList=view.findViewById(R.id.horizontal_recycle);
             horizontalTagList=view.findViewById(R.id.genre);
@@ -59,6 +65,7 @@ public class verticalAdapter extends RecyclerView.Adapter<verticalAdapter.MyView
         Log.v("Vertical Adapter","hello"+this.mtags);
     }
 
+
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -73,8 +80,10 @@ public class verticalAdapter extends RecyclerView.Adapter<verticalAdapter.MyView
 
         String mString=mNameList.get(position);
         holder.title.setText(mString);
+
+
 //        holder.genre.setText(dataClass.getGenre());
-        holder.mHorizontalAdapter.setData(mYearList);
+        holder.mHorizontalAdapter.setData(mYearList,mContext);
         try{
             String mData= mtags.get(position);
             //holder.Tags.setText(mData);

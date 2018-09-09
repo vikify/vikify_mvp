@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -39,7 +40,7 @@ import java.io.File;
 public class CameraActivity extends AppCompatActivity {
     CameraView cameraView;
     ImageView mImageView;
-    Button mButton,mUButton;
+    Button mButton,mUButton,mCancelButton,ReplayBtnFull;
     VideoView mVideoView;
     Button stopBtn, replayBtn;
     private StorageReference mStorageRef;
@@ -49,14 +50,16 @@ public class CameraActivity extends AppCompatActivity {
     String mCreatorUID,mCreatorName;
     Uri mVideoPath;
     ImageView mCancelVector;
-    FrameLayout mFrameLayout;
+    FrameLayout mFrameLayout,mRecordingFrameLayout;
     ProgressBar progressBar;
-    LinearLayout mBtnLayout;
+    LinearLayout mBtnLayout,OptionsID;
     EditText mVideoName;
     Boolean isFront;
 
     Button Start, Stop;
     TextView textView;
+
+    private static final String TAG = "CameraActivity";
 
     CountDownTimer countDownTimer=new CountDownTimer(60000, 1000) {
 
@@ -82,23 +85,32 @@ public class CameraActivity extends AppCompatActivity {
         setContentView(R.layout.activity_camera);
 
         mStorageRef=FirebaseStorage.getInstance().getReference();
-
-
+        mRecordingFrameLayout=findViewById(R.id.recording_frame_layout);
         cameraView=findViewById(R.id.camera);
         mButton=findViewById(R.id.picture);
         cameraView.setFacing(Facing.FRONT);
         mUButton=findViewById(R.id.uploadBtn);
+        mUButton.setVisibility(View.GONE);
         replayBtn=findViewById(R.id.replayBtn);
+        replayBtn.setVisibility(View.GONE);
         mTextViewProg=findViewById(R.id.textViewprog);
         mCancelVector=findViewById(R.id.cancelIcon);
         mFrameLayout=findViewById(R.id.replayFrame);
         mFrameLayout.setVisibility(View.GONE);
         progressBar=findViewById(R.id.progress_bar);
+        progressBar.setVisibility(View.GONE);
         mBtnLayout=findViewById(R.id.btnLayout);
-//        mImageView=findViewById(R.id.imageView);
+        mCancelButton=findViewById(R.id.cancelUpload);
         mVideoView=findViewById(R.id.videoView);
-//        mVideoView.setVisibility(View.GONE);
-//        mCancelVector.setVisibility(View.GONE);
+        mCancelButton.setVisibility(View.GONE);
+        stopBtn=findViewById(R.id.stopbtn);
+        stopBtn.setVisibility(View.GONE);
+        OptionsID=findViewById(R.id.options_id);
+
+
+        mfile=new File(getBaseContext().getFilesDir()+"niki.mp4");  //Temporarry file to store the video on device
+
+
 
         final CircularProgressBar circularProgressBar = (CircularProgressBar)findViewById(R.id.yourCircularProgressbar);
         circularProgressBar.setColor(ContextCompat.getColor(this, R.color.progressBarColor));
@@ -111,34 +123,22 @@ public class CameraActivity extends AppCompatActivity {
 
 
 
-
-
-
-
-        stopBtn=findViewById(R.id.stopbtn);
-        mfile=new File(getBaseContext().getFilesDir()+"niki.mp4");
-
-
-
-
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // cameraView.capturePicture();
                  circularProgressBar.setVisibility(View.VISIBLE);
-                Log.v("TAG","mfile"+mfile);
-                cameraView.startCapturingVideo(mfile);
-                Toast.makeText(getApplicationContext(),"Started",Toast.LENGTH_SHORT).show();
-                if(mUButton.getVisibility()==View.GONE){
-                    mUButton.setVisibility(View.VISIBLE);
-                }
-                if(replayBtn.getVisibility()==View.GONE){
-                    replayBtn.setVisibility(View.VISIBLE);
-                }
-
                 circularProgressBar.setProgressWithAnimation(100, animationDuration);
                 countDownTimer.start();
+                Log.v("TAG","mfile"+mfile);
 
+                cameraView.startCapturingVideo(mfile);
+                Toast.makeText(getApplicationContext(),"Started",Toast.LENGTH_SHORT).show();
+               mButton.setVisibility(View.GONE);
+               stopBtn.setVisibility(View.VISIBLE);
+               mUButton.setVisibility(View.GONE);
+               replayBtn.setVisibility(View.GONE);
+               progressBar.setVisibility(View.GONE);
 
             }
         });
@@ -147,29 +147,56 @@ public class CameraActivity extends AppCompatActivity {
                 new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mButton.setVisibility(View.GONE);
+                stopBtn.setVisibility(View.GONE);
+                mUButton.setVisibility(View.VISIBLE);
+                replayBtn.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.GONE);
                 circularProgressBar.setProgress(0);
                 countDownTimer.onFinish();
                 stopRecording();
+
             }
         });
+
 
         replayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mVideoPath!=null) {
-                    circularProgressBar.setVisibility(View.GONE);
-                    cameraView.setVisibility(View.GONE);
+
+
                     mVideoView.setVideoURI(mVideoPath);
+                    circularProgressBar.setVisibility(View.GONE);
+                    mVideoView.start();
+                    cameraView.setVisibility(View.GONE);
+                    mRecordingFrameLayout.setVisibility(View.GONE);
                     mFrameLayout.setVisibility(View.VISIBLE);
                     progressBar.setVisibility(View.GONE);
-                    mBtnLayout.setVisibility(View.GONE);
-                    mCancelVector.setVisibility(View.VISIBLE    );
+                    mButton.setVisibility(View.GONE);
+                    stopBtn.setVisibility(View.GONE);
+                    mUButton.setVisibility(View.VISIBLE);
+                    replayBtn.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.GONE);
+                    mCancelVector.setVisibility(View.VISIBLE);
                     Log.v("VideoURI", "VideoURI" + mVideoPath);
-                }
-                else
-                {
-                    Toast.makeText(getApplicationContext(),"Record a video first",Toast.LENGTH_SHORT).show();
-                }
+
+                    mCancelVector.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            progressBar.setVisibility(View.GONE);
+                            mBtnLayout.setVisibility(View.VISIBLE);
+                            cameraView.setVisibility(View.VISIBLE);
+                            mCancelVector.setVisibility(View.GONE);
+                            mFrameLayout.setVisibility(View.GONE);
+                            mVideoView.stopPlayback();
+                            mCancelButton.setVisibility(View.GONE);
+                           stopBtn.setVisibility(View.GONE);
+                            mUButton.setVisibility(View.GONE);
+                            replayBtn.setVisibility(View.GONE);
+                            mButton.setVisibility(View.VISIBLE);
+                        }
+                    });
+
             }
         });
 
@@ -182,6 +209,9 @@ public class CameraActivity extends AppCompatActivity {
                 mCancelVector.setVisibility(View.GONE);
                 mFrameLayout.setVisibility(View.GONE);
                 mVideoView.stopPlayback();
+                mCancelButton.setVisibility(View.GONE);
+                mVideoView.stopPlayback();
+                mButton.setVisibility(View.VISIBLE);
             }
         });
 
@@ -191,10 +221,7 @@ public class CameraActivity extends AppCompatActivity {
                 // The File is the same you passed before.
                 // Now it holds a MP4 video.
                 Log.v("Video","Video"+video);
-//
                 mVideoFileForUpload=video;
-                mVideoView.setVideoURI(Uri.parse("file:///"+video.getPath()));
-                mVideoView.start();
                 sendVideoPath(Uri.parse("file:///"+video.getPath()));
 
             }
@@ -216,8 +243,11 @@ public class CameraActivity extends AppCompatActivity {
                                     Toast.makeText(CameraActivity.this, "Submitted", Toast.LENGTH_SHORT).show();
                                     String videoName= mVideoName.getText().toString();
                                     Log.v("TAG","VideoName:"+mVideoName.getText().toString());
-                                    replayBtn.setVisibility(View.GONE);
+                                    mButton.setVisibility(View.GONE);
+                                    stopBtn.setVisibility(View.GONE);
                                     mUButton.setVisibility(View.GONE);
+                                    replayBtn.setVisibility(View.GONE);
+                                    progressBar.setVisibility(View.VISIBLE);  mCancelButton.setVisibility(View.GONE);
                                     Toast.makeText(CameraActivity.this, "Name submitted", Toast.LENGTH_SHORT).show();
                                     sendDataToFirebase(mVideoFileForUpload.getPath(),videoName);
                                 }
@@ -268,6 +298,7 @@ public class CameraActivity extends AppCompatActivity {
         super.onDestroy();
         cameraView.destroy();
     }
+
     private void CallToFunction(Bitmap bmp)
     {
         if (bmp != null)
@@ -289,8 +320,8 @@ public class CameraActivity extends AppCompatActivity {
 
 
     private void sendDataToFirebase(String filePath,String name){
-        Uri fileUpload = Uri.fromFile(new File(filePath));
-        StorageReference mVideoRef= mStorageRef.child("videos/"+mCreatorUID+"uniqueTimeStamp"+System.currentTimeMillis()/1000+"Name-"+name+"-"+"Creator-"+mCreatorName);  //Current time stamp in UTC
+        final Uri fileUpload = Uri.fromFile(new File(filePath));
+        final StorageReference mVideoRef= mStorageRef.child("videos/"+mCreatorUID+"uniqueTimeStamp"+System.currentTimeMillis()/1000+"Name-"+name+"-"+"Creator-"+mCreatorName);  //Current time stamp in UTC
 
 
 
@@ -310,7 +341,22 @@ public class CameraActivity extends AppCompatActivity {
             public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                 updateProgress(taskSnapshot);
             }
+        }).addOnCanceledListener(new OnCanceledListener() {
+            @Override
+            public void onCanceled() {
+               //Implement when needed
+            }
         });
+
+        mCancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               //Implement when needed
+            }
+        });
+
+
+
     }
 
 

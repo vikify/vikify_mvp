@@ -8,11 +8,24 @@
     tools:context=".NavDraw"
     tools:showIn="@layout/app_bar_nav_draw">
 
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:theme="@style/ProgressBar"
+        android:maxWidth="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:layout_editor_absoluteY="0dp" />
+
     <android.support.v7.widget.RecyclerView
+        android:id="@+id/verticle_recycle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/verticle_recycle"
         android:scrollbars="vertical"
-        />
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp" />
 
 </android.support.constraint.ConstraintLayout>

@@ -3,4 +3,8 @@
     <style name="AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="ProgressBar" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorAccent">@color/colorPrimary</item>
+    </style>
 </resources>
