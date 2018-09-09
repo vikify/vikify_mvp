@@ -2,39 +2,100 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".CameraActivity">
-
+<FrameLayout
+    android:id="@+id/main_Frame"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
     <com.otaliastudios.cameraview.CameraView
         android:id="@+id/camera"
         android:keepScreenOn="true"
         app:cameraSessionType="video"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <FrameLayout
+        android:id="@+id/recording_frame_layout"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_margin="10dp"
+        android:layout_gravity="right"
+        >
+        <com.mikhaellopez.circularprogressbar.CircularProgressBar
+            android:layout_width="wrap_content"
+            android:id="@+id/yourCircularProgressbar"
+            android:layout_height="wrap_content"
+            app:cpb_background_progressbar_width="5dp"
+            app:cpb_progressbar_width="10dp" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hello World!"
+            android:shadowColor="#000"
+            android:shadowDx="1"
+            android:shadowDy="2"
+            android:shadowRadius="50"
+            android:id="@+id/textView"
+            android:layout_gravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/replayFrame">
+
+        <VideoView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/videoView"
+            />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/cancelIcon"
+            android:layout_margin="10dp"
+            android:src="@drawable/cancel"/>
+
+    </FrameLayout>
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/options_id"
+    android:layout_gravity="bottom"
+    android:orientation="vertical">
     <ProgressBar
         android:layout_width="match_parent"
-        android:layout_height="12dp"
+        android:layout_height="15dp"
         android:id="@+id/progress_bar"
         android:max="100"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"
         android:layout_marginBottom="8dp"
         style="?android:attr/progressBarStyleHorizontal"/>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#009865"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:background="@android:color/transparent"
+        android:id="@+id/btnLayout"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/picture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="left"
+            android:layout_gravity="bottom"
             android:text="Record" />
 
         <!--<ImageView-->
@@ -42,32 +103,45 @@
         <!--android:layout_height="100dp"-->
         <!--android:id="@+id/imageView"-->
         <!--android:src="@drawable/ic_videocam_black_24dp"/>-->
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/cancelUpload"
+            android:layout_gravity="bottom"
+            android:text="Cancel Upload"/>
 
         <Button
             android:id="@+id/stopbtn"
             android:layout_width="wrap_content"
-            android:layout_gravity="right"
+            android:layout_gravity="bottom"
             android:layout_height="wrap_content"
             android:text="Stop" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Replay"
+            android:layout_gravity="center_vertical"
+            android:id="@+id/replayBtn"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_height="wrap_content"
             android:text="Upload"
             android:id="@+id/uploadBtn"/>
-
-        <VideoView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/videoView"
-            />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#000"
+            android:textColor="#fff"
+            android:shadowColor="#000"
+            android:shadowDx="2"
+            android:shadowDy="4"
+            android:shadowRadius="50"
+            android:layout_gravity="bottom"
             android:id="@+id/textViewprog"/>
     </LinearLayout>
-
-
+</LinearLayout>
+</FrameLayout>
 </LinearLayout>
