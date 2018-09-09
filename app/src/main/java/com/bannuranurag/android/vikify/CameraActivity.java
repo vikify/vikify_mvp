@@ -10,9 +10,14 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -26,6 +31,11 @@ import android.widget.VideoView;
 import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -36,6 +46,8 @@ import com.otaliastudios.cameraview.CameraView;
 import com.otaliastudios.cameraview.Facing;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CameraActivity extends AppCompatActivity {
     CameraView cameraView;
@@ -55,10 +67,17 @@ public class CameraActivity extends AppCompatActivity {
     LinearLayout mBtnLayout,OptionsID;
     EditText mVideoName;
     Boolean isFront;
+    AutoCompleteTextView mAutoCompleteTextView;
+    RecyclerView mRecyclerView;
+    RecyclerView.Adapter mAdapter;
+    RecyclerView.LayoutManager mLayoutManager;
+    String valueName,valueTags;
 
     Button Start, Stop;
     TextView textView;
-
+    List<String> tagsSelect= new ArrayList<>();
+    List<String> selectedFruits= new ArrayList<>();
+    private List<String> finalTags=new ArrayList<>();
     private static final String TAG = "CameraActivity";
 
     CountDownTimer countDownTimer=new CountDownTimer(60000, 1000) {
@@ -107,6 +126,14 @@ public class CameraActivity extends AppCompatActivity {
         stopBtn.setVisibility(View.GONE);
         OptionsID=findViewById(R.id.options_id);
 
+        tagsSelect.add("Tag1");
+        tagsSelect.add("Tag2");
+        tagsSelect.add("Tag3");
+        tagsSelect.add("Tag4");
+        tagsSelect.add("Tag5");
+        tagsSelect.add("Tag6");
+        tagsSelect.add("Tag7");
+
 
         mfile=new File(getBaseContext().getFilesDir()+"niki.mp4");  //Temporarry file to store the video on device
 
@@ -118,7 +145,7 @@ public class CameraActivity extends AppCompatActivity {
         circularProgressBar.setProgressBarWidth(getResources().getDimension(R.dimen.progressBarWidth));
         circularProgressBar.setBackgroundProgressBarWidth(getResources().getDimension(R.dimen.backgroundProgressBarWidth));
         final int animationDuration = 60000; // 2500ms = 2,5s
-
+        final DatabaseReference database = FirebaseDatabase.getInstance().getReference();
 
 
 
@@ -139,6 +166,35 @@ public class CameraActivity extends AppCompatActivity {
                mUButton.setVisibility(View.GONE);
                replayBtn.setVisibility(View.GONE);
                progressBar.setVisibility(View.GONE);
+
+            }
+        });
+
+        database.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                long mNameSize=dataSnapshot.child("VikifyDatabase").child("Content-details").getChildrenCount();
+                Log.v(TAG,"Longq"+mNameSize);
+                for(long i=1;i<=mNameSize;i++) {
+                    String iString=Long.toString(i);
+                    long mTagSize=dataSnapshot.child("VikifyDatabase").child("Content-details").child("Category"+iString).child("Tags").getChildrenCount();
+                    for(long j=0;j<mTagSize;j++) {
+
+                        String jString=Long.toString(j);
+                        valueTags = dataSnapshot.child("VikifyDatabase").child("Content-details").child("Category" + iString).child("Tags").child(jString).getValue().toString();
+                        valueTags=valueTags.replaceAll("[\\{\\}]"," ");
+                        finalTags.add(valueTags);
+                    }
+
+                    tagsSelect=finalTags;
+                    Log.v(TAG," Mtags1 "+finalTags);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
@@ -235,8 +291,33 @@ public class CameraActivity extends AppCompatActivity {
                      LayoutInflater inflater = CameraActivity.this.getLayoutInflater();
                     final View main_view = inflater.inflate(R.layout.dialog_layout, null);
 
-                    builder.setView(main_view)
-                            .setPositiveButton(R.string.Sendname, new DialogInterface.OnClickListener() {
+                    builder.setView(main_view);
+
+                    ArrayAdapter<String> adapter= new ArrayAdapter<String>(CameraActivity.this,R.layout.support_simple_spinner_dropdown_item,tagsSelect);
+                    mAutoCompleteTextView=main_view.findViewById(R.id.autocomplete_view);
+                    mAutoCompleteTextView.setAdapter(adapter);
+                    mRecyclerView=main_view.findViewById(R.id.recycler_iew);
+
+                    mAutoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(final AdapterView<?> parent, View view, final int position, long id) {
+                            String text=parent.getItemAtPosition(position).toString();
+                            selectedFruits.add(text);
+
+                            mRecyclerView.setHasFixedSize(true);
+
+                            // use a linear layout manager
+                            mLayoutManager = new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.HORIZONTAL,false);
+                            mRecyclerView.setLayoutManager(mLayoutManager);
+
+                            // specify an adapter (see also next example)
+                            mAdapter = new TagSelectionAdapter(selectedFruits);
+                            mRecyclerView.setAdapter(mAdapter);
+
+                        }
+                    });
+
+                    builder.setPositiveButton(R.string.Sendname, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     mVideoName=main_view.findViewById(R.id.videoName);
@@ -321,7 +402,7 @@ public class CameraActivity extends AppCompatActivity {
 
     private void sendDataToFirebase(String filePath,String name){
         final Uri fileUpload = Uri.fromFile(new File(filePath));
-        final StorageReference mVideoRef= mStorageRef.child("videos/"+mCreatorUID+"uniqueTimeStamp"+System.currentTimeMillis()/1000+"Name-"+name+"-"+"Creator-"+mCreatorName);  //Current time stamp in UTC
+        final StorageReference mVideoRef= mStorageRef.child("videos/"+mCreatorUID+"uniqueTimeStamp"+System.currentTimeMillis()/1000+"Name-"+name+"-"+"Creator-"+mCreatorName+"-Tags-"+selectedFruits);  //Current time stamp in UTC
 
 
 

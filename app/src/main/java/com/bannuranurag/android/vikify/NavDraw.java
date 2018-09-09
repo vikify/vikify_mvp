@@ -242,6 +242,7 @@ public class NavDraw extends AppCompatActivity
 
                 mAdapter=new verticalAdapter(getApplicationContext(), mFinalName,yearList,finalTags);
 
+
                 Log.v(TAG,"hello100"+mFinalName);
 
 
