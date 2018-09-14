@@ -12,15 +12,19 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
 import java.util.List;
 
 public class horizontalAdapter extends RecyclerView.Adapter<horizontalAdapter.MyViewHolder> {
+  StorageReference  mStorageRef=FirebaseStorage.getInstance().getReference().child("videos/");
 
     private static final String TAG = "horizontalAdapter";
     Context mContext;
 
 
-    private List<HorizontalClass> yearList;
+    private List<HorizontalClass> mCreatorList;
     
 
     public horizontalAdapter() {
@@ -28,26 +32,26 @@ public class horizontalAdapter extends RecyclerView.Adapter<horizontalAdapter.My
 
 
     public static class MyViewHolder extends RecyclerView.ViewHolder{
-        public TextView year;
+        public TextView mCreator;
         public LinearLayout mLinearLayout;
         public ImageView mImageView;
 
 
         public MyViewHolder(View view) {
             super(view);
-             year = (TextView) view.findViewById(R.id.year);
+             mCreator = (TextView) view.findViewById(R.id.creator);
              mLinearLayout=view.findViewById(R.id.click_to_goto_video);
              mImageView=view.findViewById(R.id.vertical_imageview);
         }
     }
 
     public horizontalAdapter(List<HorizontalClass> yearList) {
-        this.yearList=yearList;
+        this.mCreatorList=yearList;
     }
 
-    public void setData(List<HorizontalClass> year, Context context) {
-        if (year != yearList) {
-            yearList = year;
+    public void setData(List<HorizontalClass> creator, Context context) {
+        if (creator != mCreatorList) {
+            mCreatorList = creator;
             notifyDataSetChanged();
         }
         mContext=context;
@@ -69,17 +73,25 @@ public class horizontalAdapter extends RecyclerView.Adapter<horizontalAdapter.My
 
     @Override
     public void onBindViewHolder(@NonNull final MyViewHolder holder, final int position) {
-        HorizontalClass dataClass = yearList.get(position);
-        holder.year.setText(dataClass.getmYear());
+        HorizontalClass dataClass = mCreatorList.get(position);
+        holder.mCreator.setText(dataClass.getmYear());
         holder.mLinearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               Log.v("TAG","position "+holder.year.getText().toString());
-                mContext.startActivity(new Intent(mContext, VideoPlayer.class));
+               Log.v("TAG","position "+holder.mCreator.getText().toString());
+               mContext.startActivity(new Intent(mContext, PlayerActivity.class));
+              Log.v("TAG", "Bucket"+ mStorageRef.getBucket());
             }
         });
 
     }
+
+//    public void startVideo(Task<Uri> mStorageRef){
+//        Intent mIntent= new Intent(mContext,PlayerActivity.class);
+//
+//        Log.v("TAG","URLVIDS"+mStorageRef);
+//        mContext.startActivity(mIntent);
+//    }
 
 
 
@@ -87,6 +99,6 @@ public class horizontalAdapter extends RecyclerView.Adapter<horizontalAdapter.My
 
     @Override
     public int getItemCount() {
-        return yearList.size();
+        return mCreatorList.size();
     }
 }

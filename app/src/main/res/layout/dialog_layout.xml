@@ -40,6 +40,8 @@
             <AutoCompleteTextView
                 android:layout_width="match_parent"
                 android:hint="Tags"
+                android:padding="10dp"
+                android:background="#EEEEEE"
                 android:completionThreshold="1"
                 android:id="@+id/autocomplete_view"
                 android:layout_height="wrap_content" />

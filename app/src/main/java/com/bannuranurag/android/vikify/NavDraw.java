@@ -40,6 +40,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -55,11 +57,13 @@ public class NavDraw extends AppCompatActivity
     List<String> mFinalName = new ArrayList<>();
     List<String> mName= new ArrayList<>();
     private List<HorizontalClass> yearList= new ArrayList<>();
+    private List<HorizontalClass> mCreatorList= new ArrayList<>();
     private List<String> tags= new ArrayList<>();
     private List<String> finalTags=new ArrayList<>();
     String valueName,valueTags;
     LinearLayout mLinearLayout;
     ProgressBar mProgresBar;
+    StorageReference storageReference,mVideoReference;
 
     private static final String TAG="State";
 //    private String myDataset[]={"Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW"};
@@ -104,7 +108,8 @@ public class NavDraw extends AppCompatActivity
         mProgresBar=findViewById(R.id.progress_bar);
         mProgresBar.setVisibility(View.VISIBLE);
 
-
+        storageReference= FirebaseStorage.getInstance().getReference();
+        mVideoReference=storageReference.child("videos/");
 
 
 
@@ -265,6 +270,7 @@ public class NavDraw extends AppCompatActivity
 
 
         prepareYearData();
+            getCreatorNames(mVideoReference);
 
 
     }
@@ -415,6 +421,10 @@ public class NavDraw extends AppCompatActivity
         hClass=new HorizontalClass("Creator");
         yearList.add(hClass);
 
+    }
+
+    public void getCreatorNames(StorageReference mVideoReference){
+        Log.v(TAG,"StorageRefl"+mVideoReference);
     }
 
 }

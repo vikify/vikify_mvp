@@ -17,7 +17,7 @@
 
     <TextView
         android:paddingTop="5dp"
-        android:id="@+id/year"
+        android:id="@+id/creator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"

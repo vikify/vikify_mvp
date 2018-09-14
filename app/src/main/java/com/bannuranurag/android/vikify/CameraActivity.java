@@ -72,13 +72,14 @@ public class CameraActivity extends AppCompatActivity {
     RecyclerView.Adapter mAdapter;
     RecyclerView.LayoutManager mLayoutManager;
     String valueName,valueTags;
-
+    private DatabaseReference mDatabase;
     Button Start, Stop;
     TextView textView;
     List<String> tagsSelect= new ArrayList<>();
-    List<String> selectedFruits= new ArrayList<>();
+    List<String> selectedtags= new ArrayList<>();
     private List<String> finalTags=new ArrayList<>();
     private static final String TAG = "CameraActivity";
+    Uri muri;
 
     CountDownTimer countDownTimer=new CountDownTimer(60000, 1000) {
 
@@ -102,7 +103,6 @@ public class CameraActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
-
         mStorageRef=FirebaseStorage.getInstance().getReference();
         mRecordingFrameLayout=findViewById(R.id.recording_frame_layout);
         cameraView=findViewById(R.id.camera);
@@ -239,17 +239,33 @@ public class CameraActivity extends AppCompatActivity {
                     mCancelVector.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            progressBar.setVisibility(View.GONE);
-                            mBtnLayout.setVisibility(View.VISIBLE);
-                            cameraView.setVisibility(View.VISIBLE);
-                            mCancelVector.setVisibility(View.GONE);
-                            mFrameLayout.setVisibility(View.GONE);
-                            mVideoView.stopPlayback();
-                            mCancelButton.setVisibility(View.GONE);
-                           stopBtn.setVisibility(View.GONE);
-                            mUButton.setVisibility(View.GONE);
-                            replayBtn.setVisibility(View.GONE);
-                            mButton.setVisibility(View.VISIBLE);
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(CameraActivity.this);
+                            builder.setMessage("This will permanently delete your recording. Are you sure you want to proceed?")
+                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            // FIRE ZE MISSILES!
+                                            progressBar.setVisibility(View.GONE);
+                                            mBtnLayout.setVisibility(View.VISIBLE);
+                                            cameraView.setVisibility(View.VISIBLE);
+                                            mCancelVector.setVisibility(View.GONE);
+                                            mFrameLayout.setVisibility(View.GONE);
+                                            mVideoView.stopPlayback();
+                                            mCancelButton.setVisibility(View.GONE);
+                                            stopBtn.setVisibility(View.GONE);
+                                            mUButton.setVisibility(View.GONE);
+                                            replayBtn.setVisibility(View.GONE);
+                                            mButton.setVisibility(View.VISIBLE);
+                                        }
+                                    })
+                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            // User cancelled the dialog
+                                            Log.v(TAG,"Cancelled");
+                                        }
+                                    }).show();
+                            // Create the AlertDialog object and return it
+
                         }
                     });
 
@@ -302,7 +318,7 @@ public class CameraActivity extends AppCompatActivity {
                         @Override
                         public void onItemClick(final AdapterView<?> parent, View view, final int position, long id) {
                             String text=parent.getItemAtPosition(position).toString();
-                            selectedFruits.add(text);
+                            selectedtags.add(text);
 
                             mRecyclerView.setHasFixedSize(true);
 
@@ -311,7 +327,7 @@ public class CameraActivity extends AppCompatActivity {
                             mRecyclerView.setLayoutManager(mLayoutManager);
 
                             // specify an adapter (see also next example)
-                            mAdapter = new TagSelectionAdapter(selectedFruits);
+                            mAdapter = new TagSelectionAdapter(selectedtags);
                             mRecyclerView.setAdapter(mAdapter);
 
                         }
@@ -321,7 +337,6 @@ public class CameraActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     mVideoName=main_view.findViewById(R.id.videoName);
-                                    Toast.makeText(CameraActivity.this, "Submitted", Toast.LENGTH_SHORT).show();
                                     String videoName= mVideoName.getText().toString();
                                     Log.v("TAG","VideoName:"+mVideoName.getText().toString());
                                     mButton.setVisibility(View.GONE);
@@ -329,8 +344,8 @@ public class CameraActivity extends AppCompatActivity {
                                     mUButton.setVisibility(View.GONE);
                                     replayBtn.setVisibility(View.GONE);
                                     progressBar.setVisibility(View.VISIBLE);  mCancelButton.setVisibility(View.GONE);
-                                    Toast.makeText(CameraActivity.this, "Name submitted", Toast.LENGTH_SHORT).show();
-                                    sendDataToFirebase(mVideoFileForUpload.getPath(),videoName);
+                                    Toast.makeText(CameraActivity.this, "Video submitted", Toast.LENGTH_SHORT).show();
+                                    sendDataToFirebase(mVideoFileForUpload.getPath(),videoName,selectedtags);
                                 }
                             }).show();
 
@@ -353,10 +368,6 @@ public class CameraActivity extends AppCompatActivity {
 
         textView=findViewById(R.id.textView);
         textView.setVisibility(View.GONE);
-
-
-
-
 
 
     }
@@ -400,12 +411,10 @@ public class CameraActivity extends AppCompatActivity {
     }
 
 
-    private void sendDataToFirebase(String filePath,String name){
+    private void sendDataToFirebase(String filePath, final String name, final List<String> selectedFruits){
         final Uri fileUpload = Uri.fromFile(new File(filePath));
-        final StorageReference mVideoRef= mStorageRef.child("videos/"+mCreatorUID+"uniqueTimeStamp"+System.currentTimeMillis()/1000+"Name-"+name+"-"+"Creator-"+mCreatorName+"-Tags-"+selectedFruits);  //Current time stamp in UTC
-
-
-
+        final long uniqueTimeStamp=System.currentTimeMillis()/1000;
+        final StorageReference mVideoRef= mStorageRef.child("videos/"+mCreatorUID+"uniqueTimeStamp"+uniqueTimeStamp+"Name-"+name+"-"+"Creator-"+mCreatorName+"-Tags-"+selectedFruits);  //Current time stamp in UTC
         mVideoRef.putFile(fileUpload)
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
@@ -420,7 +429,7 @@ public class CameraActivity extends AppCompatActivity {
         }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                updateProgress(taskSnapshot);
+                updateProgress(taskSnapshot,name,selectedFruits,mVideoRef,mCreatorName,uniqueTimeStamp);
             }
         }).addOnCanceledListener(new OnCanceledListener() {
             @Override
@@ -437,11 +446,10 @@ public class CameraActivity extends AppCompatActivity {
         });
 
 
-
     }
 
 
-    private void updateProgress(UploadTask.TaskSnapshot taskSnapshot){
+    private void updateProgress(UploadTask.TaskSnapshot taskSnapshot,String name,List<String> selectedtag,StorageReference Ref,String creatorname,long uniqueTimeStamp){
         long FileSize=taskSnapshot.getTotalByteCount();
         long uploadBytes=taskSnapshot.getBytesTransferred();
 
@@ -452,6 +460,8 @@ public class CameraActivity extends AppCompatActivity {
         progressBar.setProgress((int)progress);
         mTextViewProg.setText(prog);
         if(progress==100){
+
+            senddataToRealTimeDataBase(name,selectedtags,Ref,creatorname,uniqueTimeStamp);
             Intent mIntent=new Intent(CameraActivity.this,NavDraw.class);
             mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(mIntent);
@@ -476,6 +486,47 @@ public class CameraActivity extends AppCompatActivity {
         if(replayBtn.getVisibility()==View.GONE){
             replayBtn.setVisibility(View.VISIBLE);
         }
+
+    }
+
+    public void senddataToRealTimeDataBase(final String name, final List<String> selectedFruits, final StorageReference Ref, final String creatorName, final long uniqueTimeStamp){
+
+
+        if(true){
+            Ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    String url = uri.toString();
+                    finalLoadMethod(name,selectedFruits,Ref,url,creatorName,uniqueTimeStamp);
+                    Log.v(TAG,"URIIS"+uri);
+
+
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.v(TAG,"Failed");
+                }
+            });
+        }
+
+    }
+
+    public void finalLoadMethod(String name,List<String> selectedFruits,StorageReference Ref, String uri,String creatorName, long uniqueTimeStamp){
+
+        VideoDetailsClass videoName=new VideoDetailsClass(name,selectedFruits,uri);
+        String timeStamp=Long.toString(uniqueTimeStamp);
+        Log.v(TAG,"Name "+name+"Tags "+selectedFruits+"URI "+uri);
+       mDatabase = FirebaseDatabase.getInstance().getReference();
+       try {
+           mDatabase.child("VikifyDatabase").child("Video-details").child("Video By "+creatorName+" At "+timeStamp).setValue(videoName);
+       }
+       catch (Exception e){
+
+       }
+
+        Log.v(TAG,"Ecerythingexecutedproperly");
+
 
     }
 
