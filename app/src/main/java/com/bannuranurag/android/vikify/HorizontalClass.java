@@ -1,20 +1,20 @@
 package com.bannuranurag.android.vikify;
 
 public class HorizontalClass {
-    private String mYear;
+    private String mCreator;
 
-    public HorizontalClass(String mYear) {
-        this.mYear = mYear;
+    public HorizontalClass(String Creator) {
+        this.mCreator = Creator;
     }
 
     public HorizontalClass() {
     }
 
     public String getmYear() {
-        return mYear;
+        return mCreator;
     }
 
-    public void setmYear(String mYear) {
-        this.mYear = mYear;
+    public void setmYear(String Creator) {
+        this.mCreator = Creator;
     }
 }

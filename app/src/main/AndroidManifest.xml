@@ -33,7 +33,7 @@
         <activity
             android:name=".CameraActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity android:name=".VideoPlayer"></activity>
+        <activity android:name=".PlayerActivity"></activity>
     </application>
 
 </manifest>
