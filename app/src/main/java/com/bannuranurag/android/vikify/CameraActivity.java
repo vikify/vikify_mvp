@@ -411,10 +411,10 @@ public class CameraActivity extends AppCompatActivity {
     }
 
 
-    private void sendDataToFirebase(String filePath, final String name, final List<String> selectedFruits){
+    private void sendDataToFirebase(String filePath, final String name, final List<String> selectedTags){
         final Uri fileUpload = Uri.fromFile(new File(filePath));
         final long uniqueTimeStamp=System.currentTimeMillis()/1000;
-        final StorageReference mVideoRef= mStorageRef.child("videos/"+mCreatorUID+"uniqueTimeStamp"+uniqueTimeStamp+"Name-"+name+"-"+"Creator-"+mCreatorName+"-Tags-"+selectedFruits);  //Current time stamp in UTC
+        final StorageReference mVideoRef= mStorageRef.child("videos/"+mCreatorUID+"uniqueTimeStamp"+uniqueTimeStamp+"Name-"+name+"-"+"Creator-"+mCreatorName+"-Tags-"+selectedTags);  //Current time stamp in UTC
         mVideoRef.putFile(fileUpload)
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
@@ -429,7 +429,7 @@ public class CameraActivity extends AppCompatActivity {
         }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                updateProgress(taskSnapshot,name,selectedFruits,mVideoRef,mCreatorName,uniqueTimeStamp);
+                updateProgress(taskSnapshot,name,selectedTags,mVideoRef,mCreatorName,uniqueTimeStamp);
             }
         }).addOnCanceledListener(new OnCanceledListener() {
             @Override
@@ -461,7 +461,7 @@ public class CameraActivity extends AppCompatActivity {
         mTextViewProg.setText(prog);
         if(progress==100){
 
-            senddataToRealTimeDataBase(name,selectedtags,Ref,creatorname,uniqueTimeStamp);
+            senddataToRealTimeDataBase(name,selectedtag,Ref,creatorname,uniqueTimeStamp);
             Intent mIntent=new Intent(CameraActivity.this,NavDraw.class);
             mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(mIntent);
@@ -489,7 +489,7 @@ public class CameraActivity extends AppCompatActivity {
 
     }
 
-    public void senddataToRealTimeDataBase(final String name, final List<String> selectedFruits, final StorageReference Ref, final String creatorName, final long uniqueTimeStamp){
+    public void senddataToRealTimeDataBase(final String name, final List<String> selectedtags, final StorageReference Ref, final String creatorName, final long uniqueTimeStamp){
 
 
         if(true){
@@ -497,7 +497,7 @@ public class CameraActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(Uri uri) {
                     String url = uri.toString();
-                    finalLoadMethod(name,selectedFruits,Ref,url,creatorName,uniqueTimeStamp);
+                    finalLoadMethod(name,selectedtags,Ref,url,creatorName,uniqueTimeStamp);
                     Log.v(TAG,"URIIS"+uri);
 
 
@@ -512,11 +512,11 @@ public class CameraActivity extends AppCompatActivity {
 
     }
 
-    public void finalLoadMethod(String name,List<String> selectedFruits,StorageReference Ref, String uri,String creatorName, long uniqueTimeStamp){
+    public void finalLoadMethod(String name,List<String> selectedtags,StorageReference Ref, String uri,String creatorName, long uniqueTimeStamp){
 
-        VideoDetailsClass videoName=new VideoDetailsClass(name,selectedFruits,uri);
+        VideoDetailsClass videoName=new VideoDetailsClass(name,selectedtags,uri);
         String timeStamp=Long.toString(uniqueTimeStamp);
-        Log.v(TAG,"Name "+name+"Tags "+selectedFruits+"URI "+uri);
+        Log.v(TAG,"Name "+name+"Tags "+selectedtags+"URI "+uri);
        mDatabase = FirebaseDatabase.getInstance().getReference();
        try {
            mDatabase.child("VikifyDatabase").child("Video-details").child("Video By "+creatorName+" At "+timeStamp).setValue(videoName);
