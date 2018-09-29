@@ -21,6 +21,15 @@
         android:hint="@string/Sendname"
         android:textColorHint="#737272"/>
 
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/video_description"
+        android:hint="@string/write_a_description_about_your_video"
+        android:textColor="#000"
+        android:inputType="text"
+        />
+
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"

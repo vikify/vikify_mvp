@@ -4,16 +4,19 @@
     <string name="title_section1">Section 1</string>
     <string name="title_section2">Section 2</string>
     <string name="title_section3">Section 3</string>
-
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-
     <string name="action_example">Example action</string>
-
+    <string name="facebook_app_id">636944696699645</string>
+    <string name="fbloginprotocolscheme">fb636944696699645</string>
     <string name="action_settings">Settings</string>
     <string name="nav_header_title">Android Studio</string>
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="Sendname">Name your Video</string>
     <string name="title_name">Vikify</string>
+    <string name="profile">Profile</string>
+    <string name="saved">Saved</string>
+    <string name="signout">Signout</string>
+    <string name="write_a_description_about_your_video">Write a description about your video</string>
 </resources>
