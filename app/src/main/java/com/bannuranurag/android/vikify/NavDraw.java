@@ -2,7 +2,6 @@ package com.bannuranurag.android.vikify;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -23,11 +22,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.request.RequestOptions;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -64,11 +62,11 @@ public class NavDraw extends AppCompatActivity
     LinearLayout mLinearLayout;
     ProgressBar mProgresBar;
     StorageReference storageReference,mVideoReference;
-
+    DatabaseReference mDatabaseReference;
     private static final String TAG="State";
-//    private String myDataset[]={"Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW","Hello","What","NOW"};
     AlertDialog.Builder builder;
     FirebaseAuth.AuthStateListener mAuthListener;
+    FirebaseAuth mAuth;
     GoogleSignInClient mGoogleSignInClient;
     TextView mTextViewName,mTextViewEmail;
     ImageView mImageView;
@@ -96,6 +94,7 @@ public class NavDraw extends AppCompatActivity
     @Override
     protected void onStart() {
         Log.v(TAG,"OnStart");
+        mAuth.addAuthStateListener(mAuthListener);
         super.onStart();
     }
 
@@ -111,7 +110,7 @@ public class NavDraw extends AppCompatActivity
         storageReference= FirebaseStorage.getInstance().getReference();
         mVideoReference=storageReference.child("videos/");
 
-
+    mAuth=FirebaseAuth.getInstance();
 
 //        String Uid= FirebaseAuth.getInstance().getUid();
         user = FirebaseAuth.getInstance().getCurrentUser();
@@ -128,33 +127,52 @@ public class NavDraw extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         View hView =  navigationView.getHeaderView(0);
+
         mTextViewName = (TextView)hView.findViewById(R.id.header_user_name);
         mTextViewEmail=hView.findViewById(R.id.header_user_email);
         mImageView=hView.findViewById(R.id.header_image_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(getApplicationContext()); //Get all user details
-        if (acct != null) {
-            String personName = acct.getDisplayName();
-            String personEmail = acct.getEmail();
-            Uri personPhoto = acct.getPhotoUrl();
-            mTextViewName.setText(personName);
-            mTextViewEmail.setText(personEmail);
 
 
-            try {
-                URL mUrl=new URL(personPhoto.toString());
-                GlideApp
-                        .with(getApplicationContext())
-                        .load(mUrl)
-                        .override(130, 130)
-                        .apply(RequestOptions.circleCropTransform())
-                        .into(mImageView);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                 user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    user.reload().addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            mTextViewName.setText(getUserName(user));
+                            mTextViewEmail.setText(getEmail(user));
+
+                            try {
+                                URL mUrl=new URL(getPhotourl(user));
+                                GlideApp
+                                        .with(getApplicationContext())
+                                        .load(mUrl)
+                                        .override(130, 130)
+                                        .apply(RequestOptions.circleCropTransform())
+                                        .into(mImageView);
+                            } catch (MalformedURLException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                    // User is signed in
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+
+
+
+                } else {
+                    // User is signed out
+                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                }
+                // ...
             }
+        };
 
-        }
 
         database.addChildEventListener(new ChildEventListener() {
             @Override
@@ -270,7 +288,7 @@ public class NavDraw extends AppCompatActivity
 
 
         prepareYearData();
-            getCreatorNames(mVideoReference);
+
 
 
     }
@@ -294,6 +312,13 @@ public class NavDraw extends AppCompatActivity
         return true;
     }
 
+
+    public static String getUserUID(){
+        FirebaseUser camUser = FirebaseAuth.getInstance().getCurrentUser();
+        String camuid=camUser.getUid();
+        return camuid;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -303,16 +328,16 @@ public class NavDraw extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.goToVideoList) {
-            Intent mIntent = new Intent(getApplicationContext(),CameraActivity.class);
+            Intent mIntent = new Intent(NavDraw.this,CameraActivity.class);
             FirebaseUser camUser = FirebaseAuth.getInstance().getCurrentUser();
             Log.v("CamUser","CamUser"+camUser);
             Bundle camDetails=new Bundle();
 
             String camuid=camUser.getUid();
             String camName=camUser.getDisplayName();
-            camDetails.putString("CreatorUID",camuid);
+            camDetails.putString("CreatorUID",getUserUID());
             camDetails.putString("CreatorName",camName);//Get the user UID while recording
-            Log.v("CAMERA79","CAM"+camuid);
+
             mIntent.putExtras(camDetails);
             startActivity(mIntent);
         }
@@ -326,18 +351,18 @@ public class NavDraw extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
 
-        } else if (id == R.id.nav_slideshow) {
+        // Handle the camera action
+        if (id == R.id.nav_gallery) {
 
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        } else if(id==R.id.nav_goto_profile){
+            Intent mIntent=new Intent(this,ProfileActivity.class);
+            FirebaseUser camUser = FirebaseAuth.getInstance().getCurrentUser();
+            Bundle extras = new Bundle();
+            extras.putString("CreatorUID",camUser.getUid());
+            extras.putString("CreatorName",camUser.getDisplayName());
+            mIntent.putExtras(extras);
+            startActivity(mIntent);
         }
         else if(id== R.id.sign_out){
             builder.setMessage("Do you want to signout?")
@@ -378,20 +403,34 @@ public class NavDraw extends AppCompatActivity
                     public void onComplete(@NonNull Task<Void> task) {
 
                         // ...Toas
-                        FirebaseUser user1=FirebaseAuth.getInstance().getCurrentUser();
-                        Log.v("CURRENTUSER","USER"+user1.getUid());
-                        Toast.makeText(getApplicationContext(),"SignedOut",Toast.LENGTH_SHORT).show();
+                        FirebaseAuth.getInstance().signOut();
+                        LoginManager.getInstance().logOut();
                         Intent mIntent=new Intent(getApplicationContext(),glogin.class);
                         startActivity(mIntent);
                         finish();
                     }
                 });
+
     }
 
 
 
 
     public void prepareYearData(){
+        mDatabaseReference=FirebaseDatabase.getInstance().getReference();
+        mDatabaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.v(TAG,"Datasnap69"+dataSnapshot.child("VikifyDatabase").child("Video-details"));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+
         HorizontalClass hClass=new HorizontalClass("Creator");
         yearList.add(hClass);
 
@@ -423,8 +462,33 @@ public class NavDraw extends AppCompatActivity
 
     }
 
-    public void getCreatorNames(StorageReference mVideoReference){
-        Log.v(TAG,"StorageRefl"+mVideoReference);
+//    public void getUserProfile(FirebaseUser user){
+//        mTextViewName.setText(getUserName(user));
+//        mTextViewEmail.setText(getEmail(user));
+//
+//        try {
+//            URL mUrl=new URL(getPhotourl(user));
+//            GlideApp
+//                    .with(getApplicationContext())
+//                    .load(mUrl)
+//                    .override(130, 130)
+//                    .apply(RequestOptions.circleCropTransform())
+//                    .into(mImageView);
+//        } catch (MalformedURLException e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
+    public static String getUserName(FirebaseUser user){
+        String name = user.getDisplayName();
+        return name;
     }
-
+    public static String getEmail(FirebaseUser user){
+        String email = user.getEmail();
+        return email;
+    }
+    public static String getPhotourl(FirebaseUser user){
+        String photoUrl = user.getPhotoUrl().toString();
+        return photoUrl;
+    }
 }

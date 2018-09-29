@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
@@ -18,19 +19,20 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 public class PlayerActivity extends AppCompatActivity {
-
+    TextView descriptiontextView;
     PlayerView playerView;
     private SimpleExoPlayer player;
     private boolean playWhenReady;
     private  int currentWindow;
     private  Long playbackPosition;
+    private static final String TAG = "PlayerActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
         playerView = findViewById(R.id.video_view);
-
+        descriptiontextView=findViewById(R.id.video_description);
 
     }
 
@@ -83,13 +85,21 @@ public class PlayerActivity extends AppCompatActivity {
                 new DefaultTrackSelector(), new DefaultLoadControl());
 
         playerView.setPlayer(player);
+        Bundle extras = getIntent().getExtras();
+//        Intent mIntent = getIntent();
+        if(extras!=null){
+            String url=extras.getString("URL");
+            String desc= String.valueOf(extras.get("Description"));
+            Uri uri = Uri.parse(url);
+            MediaSource mediaSource = buildMediaSource(uri);
+            player.prepare(mediaSource, true, false);
+            //descriptiontextView.setText(desc);
+            player.setPlayWhenReady(playWhenReady);
+            player.seekTo(0,0);
+        }
 
-        Uri uri = Uri.parse("https://firebasestorage.googleapis.com/v0/b/vikifyappfinal.appspot.com/o/videos%2FJRkIoRkXp0TC3Szojb63iw6Ah2N2uniqueTimeStamp1536442193Name-text-Creator-Nuage%20Laboratoire?alt=media&token=8b25bd2d-9f35-406a-abac-990763e5d5cd");
-        MediaSource mediaSource = buildMediaSource(uri);
-        player.prepare(mediaSource, true, false);
 
-        player.setPlayWhenReady(playWhenReady);
-        player.seekTo(0,0);
+
 
     }
 

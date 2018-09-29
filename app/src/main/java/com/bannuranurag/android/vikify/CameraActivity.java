@@ -1,8 +1,8 @@
 package com.bannuranurag.android.vikify;
 
+import android.arch.persistence.room.Room;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -28,6 +28,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.bannuranurag.android.vikify.DataSaving.DBEntityClass;
+import com.bannuranurag.android.vikify.DataSaving.SavedVideosDB;
+import com.bannuranurag.android.vikify.DataSaving.SavingImages;
 import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -47,12 +50,12 @@ import com.otaliastudios.cameraview.Facing;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class CameraActivity extends AppCompatActivity {
     CameraView cameraView;
-    ImageView mImageView;
-    Button mButton,mUButton,mCancelButton,ReplayBtnFull;
+    Button mButton,mUButton,mCancelButton,mSaveButton;
     VideoView mVideoView;
     Button stopBtn, replayBtn;
     private StorageReference mStorageRef;
@@ -60,12 +63,14 @@ public class CameraActivity extends AppCompatActivity {
     File mVideoFileForUpload;
     TextView mTextViewProg;
     String mCreatorUID,mCreatorName;
+    long mtimestamp;
     Uri mVideoPath;
+    SavedVideosDB videoDB;
     ImageView mCancelVector;
     FrameLayout mFrameLayout,mRecordingFrameLayout;
     ProgressBar progressBar;
     LinearLayout mBtnLayout,OptionsID;
-    EditText mVideoName;
+    EditText mVideoName,mDescription;
     Boolean isFront;
     AutoCompleteTextView mAutoCompleteTextView;
     RecyclerView mRecyclerView;
@@ -77,9 +82,10 @@ public class CameraActivity extends AppCompatActivity {
     TextView textView;
     List<String> tagsSelect= new ArrayList<>();
     List<String> selectedtags= new ArrayList<>();
+    List<String> reversedSelectedTags=new ArrayList<>();
     private List<String> finalTags=new ArrayList<>();
     private static final String TAG = "CameraActivity";
-    Uri muri;
+    final String DATABASE_NAME = "savedvideos_db";
 
     CountDownTimer countDownTimer=new CountDownTimer(60000, 1000) {
 
@@ -110,6 +116,8 @@ public class CameraActivity extends AppCompatActivity {
         cameraView.setFacing(Facing.FRONT);
         mUButton=findViewById(R.id.uploadBtn);
         mUButton.setVisibility(View.GONE);
+        mSaveButton=findViewById(R.id.saveBtn);
+        mSaveButton.setVisibility(View.GONE);
         replayBtn=findViewById(R.id.replayBtn);
         replayBtn.setVisibility(View.GONE);
         mTextViewProg=findViewById(R.id.textViewprog);
@@ -135,9 +143,11 @@ public class CameraActivity extends AppCompatActivity {
         tagsSelect.add("Tag7");
 
 
-        mfile=new File(getBaseContext().getFilesDir()+"niki.mp4");  //Temporarry file to store the video on device
+        mfile=new File(getBaseContext().getFilesDir()+File.separator+"file.mp4");  //Temporary file to store the video on device
 
-
+        videoDB = Room.databaseBuilder(getApplicationContext(),
+                SavedVideosDB.class, DATABASE_NAME)
+                .build();
 
         final CircularProgressBar circularProgressBar = (CircularProgressBar)findViewById(R.id.yourCircularProgressbar);
         circularProgressBar.setColor(ContextCompat.getColor(this, R.color.progressBarColor));
@@ -166,6 +176,7 @@ public class CameraActivity extends AppCompatActivity {
                mUButton.setVisibility(View.GONE);
                replayBtn.setVisibility(View.GONE);
                progressBar.setVisibility(View.GONE);
+                mSaveButton.setVisibility(View.GONE);
 
             }
         });
@@ -207,6 +218,7 @@ public class CameraActivity extends AppCompatActivity {
                 stopBtn.setVisibility(View.GONE);
                 mUButton.setVisibility(View.VISIBLE);
                 replayBtn.setVisibility(View.VISIBLE);
+                mSaveButton.setVisibility(View. VISIBLE);
                 progressBar.setVisibility(View.GONE);
                 circularProgressBar.setProgress(0);
                 countDownTimer.onFinish();
@@ -231,6 +243,7 @@ public class CameraActivity extends AppCompatActivity {
                     mButton.setVisibility(View.GONE);
                     stopBtn.setVisibility(View.GONE);
                     mUButton.setVisibility(View.VISIBLE);
+                    mSaveButton.setVisibility(View.VISIBLE);
                     replayBtn.setVisibility(View.VISIBLE);
                     progressBar.setVisibility(View.GONE);
                     mCancelVector.setVisibility(View.VISIBLE);
@@ -287,6 +300,19 @@ public class CameraActivity extends AppCompatActivity {
             }
         });
 
+        mSaveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                long number = (long) Math.floor(Math.random() * 9_000_000_000L) + 1_000_000_000L;
+                String uniquenumber = Long.toString(number);
+                File copyfile = new File(getBaseContext().getFilesDir()+File.separator+uniquenumber+".mp4");
+                String path=  SavingImages.savingvids(mfile,copyfile);
+                Log.v(TAG,"PATIS"+path);
+
+                run(path,getUnixTimeStamp(),NavDraw.getUserUID(),videoDB);
+            }
+        });
+
         cameraView.addCameraListener(new CameraListener() {
             @Override
             public void onVideoTaken(File video) {
@@ -302,6 +328,7 @@ public class CameraActivity extends AppCompatActivity {
         mUButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mSaveButton.setVisibility(View.GONE);
                 if(mVideoPath!=null) {
                      AlertDialog.Builder builder = new AlertDialog.Builder(CameraActivity.this);
                      LayoutInflater inflater = CameraActivity.this.getLayoutInflater();
@@ -314,12 +341,13 @@ public class CameraActivity extends AppCompatActivity {
                     mAutoCompleteTextView.setAdapter(adapter);
                     mRecyclerView=main_view.findViewById(R.id.recycler_iew);
 
+
                     mAutoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(final AdapterView<?> parent, View view, final int position, long id) {
                             String text=parent.getItemAtPosition(position).toString();
                             selectedtags.add(text);
-
+                            Collections.reverse(selectedtags);
                             mRecyclerView.setHasFixedSize(true);
 
                             // use a linear layout manager
@@ -337,7 +365,9 @@ public class CameraActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     mVideoName=main_view.findViewById(R.id.videoName);
+                                    mDescription=main_view.findViewById(R.id.video_description);
                                     String videoName= mVideoName.getText().toString();
+                                    String description=mDescription.getText().toString();
                                     Log.v("TAG","VideoName:"+mVideoName.getText().toString());
                                     mButton.setVisibility(View.GONE);
                                     stopBtn.setVisibility(View.GONE);
@@ -345,7 +375,7 @@ public class CameraActivity extends AppCompatActivity {
                                     replayBtn.setVisibility(View.GONE);
                                     progressBar.setVisibility(View.VISIBLE);  mCancelButton.setVisibility(View.GONE);
                                     Toast.makeText(CameraActivity.this, "Video submitted", Toast.LENGTH_SHORT).show();
-                                    sendDataToFirebase(mVideoFileForUpload.getPath(),videoName,selectedtags);
+                                    sendDataToFirebase(mVideoFileForUpload.getPath(),videoName,selectedtags,description);
                                 }
                             }).show();
 
@@ -356,6 +386,7 @@ public class CameraActivity extends AppCompatActivity {
 
             }
         });
+
 
         Intent mIntent=getIntent();
         Bundle camDets=mIntent.getExtras();
@@ -371,6 +402,7 @@ public class CameraActivity extends AppCompatActivity {
 
 
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -391,13 +423,7 @@ public class CameraActivity extends AppCompatActivity {
         cameraView.destroy();
     }
 
-    private void CallToFunction(Bitmap bmp)
-    {
-        if (bmp != null)
-        {
-            Toast.makeText(getApplicationContext(),"Not null",Toast.LENGTH_SHORT).show();
-        }
-    }
+
 
     private String passCreatorUID(String UID){
         mCreatorUID= UID;
@@ -409,12 +435,17 @@ public class CameraActivity extends AppCompatActivity {
         mCreatorName=name;
         return mCreatorName;
     }
-
-
-    private void sendDataToFirebase(String filePath, final String name, final List<String> selectedTags){
-        final Uri fileUpload = Uri.fromFile(new File(filePath));
+    public static long getUnixTimeStamp(){
         final long uniqueTimeStamp=System.currentTimeMillis()/1000;
-        final StorageReference mVideoRef= mStorageRef.child("videos/"+mCreatorUID+"uniqueTimeStamp"+uniqueTimeStamp+"Name-"+name+"-"+"Creator-"+mCreatorName+"-Tags-"+selectedTags);  //Current time stamp in UTC
+        return uniqueTimeStamp;
+    }
+
+
+
+    private void sendDataToFirebase(String filePath, final String name, final List<String> selectedTags, final String description){
+        final Uri fileUpload = Uri.fromFile(new File(filePath));
+         mtimestamp=getUnixTimeStamp();
+        final StorageReference mVideoRef= mStorageRef.child("videos/"+mCreatorUID+"uniqueTimeStamp"+mtimestamp+"Name-"+name+"-"+"Creator-"+mCreatorName+"-Tags-"+selectedTags);  //Current time stamp in UTC
         mVideoRef.putFile(fileUpload)
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
@@ -429,7 +460,7 @@ public class CameraActivity extends AppCompatActivity {
         }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                updateProgress(taskSnapshot,name,selectedTags,mVideoRef,mCreatorName,uniqueTimeStamp);
+                updateProgress(taskSnapshot,name,selectedTags,mVideoRef,mCreatorName,mtimestamp,description);
             }
         }).addOnCanceledListener(new OnCanceledListener() {
             @Override
@@ -449,7 +480,7 @@ public class CameraActivity extends AppCompatActivity {
     }
 
 
-    private void updateProgress(UploadTask.TaskSnapshot taskSnapshot,String name,List<String> selectedtag,StorageReference Ref,String creatorname,long uniqueTimeStamp){
+    private void updateProgress(UploadTask.TaskSnapshot taskSnapshot,String name,List<String> selectedtag,StorageReference Ref,String creatorname,long uniqueTimeStamp,String description){
         long FileSize=taskSnapshot.getTotalByteCount();
         long uploadBytes=taskSnapshot.getBytesTransferred();
 
@@ -461,7 +492,7 @@ public class CameraActivity extends AppCompatActivity {
         mTextViewProg.setText(prog);
         if(progress==100){
 
-            senddataToRealTimeDataBase(name,selectedtag,Ref,creatorname,uniqueTimeStamp);
+            senddataToRealTimeDataBase(name,selectedtag,Ref,creatorname,uniqueTimeStamp,description);
             Intent mIntent=new Intent(CameraActivity.this,NavDraw.class);
             mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(mIntent);
@@ -489,7 +520,7 @@ public class CameraActivity extends AppCompatActivity {
 
     }
 
-    public void senddataToRealTimeDataBase(final String name, final List<String> selectedtags, final StorageReference Ref, final String creatorName, final long uniqueTimeStamp){
+    public void senddataToRealTimeDataBase(final String name, final List<String> selectedtags, final StorageReference Ref, final String creatorName, final long uniqueTimeStamp, final String description){
 
 
         if(true){
@@ -497,7 +528,7 @@ public class CameraActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(Uri uri) {
                     String url = uri.toString();
-                    finalLoadMethod(name,selectedtags,Ref,url,creatorName,uniqueTimeStamp);
+                    finalLoadMethod(name,selectedtags,Ref,url,creatorName,uniqueTimeStamp,description);
                     Log.v(TAG,"URIIS"+uri);
 
 
@@ -512,22 +543,35 @@ public class CameraActivity extends AppCompatActivity {
 
     }
 
-    public void finalLoadMethod(String name,List<String> selectedtags,StorageReference Ref, String uri,String creatorName, long uniqueTimeStamp){
+    public void finalLoadMethod(String name,List<String> selectedtags,StorageReference Ref, String uri,String creatorName, long uniqueTimeStamp,String description){
 
-        VideoDetailsClass videoName=new VideoDetailsClass(name,selectedtags,uri);
+        VideoDetailsClass videoName=new VideoDetailsClass(name,selectedtags,uri,creatorName,description);
         String timeStamp=Long.toString(uniqueTimeStamp);
-        Log.v(TAG,"Name "+name+"Tags "+selectedtags+"URI "+uri);
+        Log.v(TAG,"Name "+name+"Tags "+selectedtags+"URI "+uri+ " Description "+description);
        mDatabase = FirebaseDatabase.getInstance().getReference();
        try {
-           mDatabase.child("VikifyDatabase").child("Video-details").child("Video By "+creatorName+" At "+timeStamp).setValue(videoName);
+           mDatabase.child("VikifyDatabase").child("Video-details").child("Video By "+creatorName+" At "+timeStamp+" CreatorUID"+mCreatorUID).setValue(videoName);
        }
        catch (Exception e){
 
        }
 
-        Log.v(TAG,"Ecerythingexecutedproperly");
+    }
 
 
+    public void run(final String path, final long timeStamp, final String userUID, final SavedVideosDB videoDB){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                DBEntityClass videoEntity = new DBEntityClass();
+                videoEntity.setCreatorUID(userUID);
+                videoEntity.setmFilePath(path);
+                videoEntity.setUnixTimeStamp(timeStamp);
+                videoDB.daoAccess().insertOnlySingleVideo(videoEntity);
+                List<DBEntityClass> videos=videoDB.daoAccess().getAllVideos();
+                Log.v(TAG,"VideosAre:"+videos);
+            }
+        }) .start();
     }
 
 }

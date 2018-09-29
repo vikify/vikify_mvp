@@ -37,7 +37,7 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.MyViewHolder> {
 
     // Provide a suitable constructor (depends on the kind of dataset)
     public TagAdapter(List<String> mtag) {
-        mtag = tags;
+
     }
 
     public void setData(List<String> mtag) {

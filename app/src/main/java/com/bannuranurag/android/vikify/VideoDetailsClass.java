@@ -1,36 +1,50 @@
 package com.bannuranurag.android.vikify;
 
+import android.support.annotation.Keep;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Keep
 public class VideoDetailsClass {
-    public String mVideoNodeName;
+    public String mVideoName;
     public String name;
     List<String> tags = new ArrayList<>();
     public String downloadUrl;
+    String description;
 
     public VideoDetailsClass() {
     }
 
-    public VideoDetailsClass(String name, List<String> Tags, String url){
-        this.name=name;
+    public VideoDetailsClass(String Videoname, List<String> Tags, String url,String name,String description){
+        mVideoName=Videoname;
         this.tags=Tags;
         downloadUrl=url;
+        this.name=name;
+        this.description=description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public VideoDetailsClass(String mVideoNodeName, String name, List<String> tags, String downloadUrl) {
-        this.mVideoNodeName = mVideoNodeName;
+        this.mVideoName = mVideoNodeName;
         name = name;
         tags = tags;
         this.downloadUrl = downloadUrl;
     }
 
-    public String getmVideoNodeName() {
-        return mVideoNodeName;
+    public String getmVideoName() {
+        return mVideoName;
     }
 
-    public void setmVideoNodeName(String mVideoNodeName) {
-        this.mVideoNodeName = mVideoNodeName;
+    public void setmVideoName(String mVideoNodeName) {
+        this.mVideoName = mVideoNodeName;
     }
 
     public String getName() {
