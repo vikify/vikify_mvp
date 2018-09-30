@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -32,7 +33,7 @@ public class PlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
         playerView = findViewById(R.id.video_view);
-        descriptiontextView=findViewById(R.id.video_description);
+        descriptiontextView=findViewById(R.id.text);
 
     }
 
@@ -86,17 +87,24 @@ public class PlayerActivity extends AppCompatActivity {
 
         playerView.setPlayer(player);
         Bundle extras = getIntent().getExtras();
-//        Intent mIntent = getIntent();
-        if(extras!=null){
-            String url=extras.getString("URL");
-            String desc= String.valueOf(extras.get("Description"));
-            Uri uri = Uri.parse(url);
-            MediaSource mediaSource = buildMediaSource(uri);
-            player.prepare(mediaSource, true, false);
-            //descriptiontextView.setText(desc);
-            player.setPlayWhenReady(playWhenReady);
-            player.seekTo(0,0);
+        String url = extras.getString("URL");
+        String desc=extras.getString("Description");
+        Log.v(TAG,"Descriptionis:"+desc);
+        try {
+            if (desc.equals("")) {
+                descriptiontextView.setText(R.string.no_video_desc);
+            } else
+                descriptiontextView.setText(desc);
         }
+        catch (NullPointerException e){
+            Log.v(TAG,".equals threw null");
+        }
+        Uri uri = Uri.parse(url);
+        MediaSource mediaSource = buildMediaSource(uri);
+        player.prepare(mediaSource, true, false);
+        //descriptiontextView.setText(desc);
+        player.setPlayWhenReady(playWhenReady);
+        player.seekTo(0, 0);
 
 
 

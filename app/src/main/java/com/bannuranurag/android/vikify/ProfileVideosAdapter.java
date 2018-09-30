@@ -2,6 +2,7 @@ package com.bannuranurag.android.vikify;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -27,12 +28,13 @@ public class ProfileVideosAdapter extends RecyclerView.Adapter<ProfileVideosAdap
 
     }
 
-    public ProfileVideosAdapter(List<String> videoname, List<String> creatorname, List<String> downloadurl, List<List<String>> tags,Context mContext) {
+    public ProfileVideosAdapter(List<String> videoname, List<String> creatorname, List<String> downloadurl, List<List<String>> tags,Context mContext,List<String> description) {
         this.videoname = videoname;
         this.creatorname = creatorname;
         this.downloadurl = downloadurl;
         this.mContext=mContext;
        this.tags = tags;
+       this.description=description;
     }
 
     @NonNull
@@ -52,13 +54,18 @@ public class ProfileVideosAdapter extends RecyclerView.Adapter<ProfileVideosAdap
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent mIntent = new Intent(mContext,PlayerActivity.class);
-//                    Bundle bundle = new Bundle();
-//                    bundle.putString("URL",downloadurl.get(position));
-//                    bundle.putString("Description",description.get(position));
-                    //mIntent.putExtras(bundle);
-                    mIntent.putExtra("VideoURL",downloadurl.get(position));
-                    mContext.startActivity(mIntent);
+                    try {
+                        Intent mIntent = new Intent(mContext, PlayerActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("URL", downloadurl.get(position));
+                        bundle.putString("Description", description.get(position));
+                        mIntent.putExtras(bundle);
+                       // mIntent.putExtra("VideoURL", downloadurl.get(position));
+                        mContext.startActivity(mIntent);
+                    }
+                    catch (NullPointerException e){
+                        Log.v(TAG,"NULL pointer at description "+e);
+                    }
                 }
             });
 //            holder.tags.(tags.get(position));

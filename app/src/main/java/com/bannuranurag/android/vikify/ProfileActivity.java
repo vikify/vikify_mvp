@@ -72,12 +72,15 @@ public class ProfileActivity extends AppCompatActivity {
         final String CreatorUID = extras.getString("CreatorUID");
         final String CreatorName = extras.getString("CreatorName");
 
-
-        mlayoutManager= new LinearLayoutManager(ProfileActivity.this);
-        recyclerView.setLayoutManager(mlayoutManager);
-        mAdapter= new ProfileVideosAdapter(videonames,names,uris,tags,ProfileActivity.this);
-        recyclerView.setAdapter(mAdapter);
-
+        try {
+            mlayoutManager = new LinearLayoutManager(ProfileActivity.this);
+            recyclerView.setLayoutManager(mlayoutManager);
+            mAdapter = new ProfileVideosAdapter(videonames, names, uris, tags, ProfileActivity.this, description);
+            recyclerView.setAdapter(mAdapter);
+        }
+        catch (NullPointerException e){
+            Log.v(TAG,"Nullpointerexception due to description"+e);
+        }
 
 
 
@@ -92,16 +95,21 @@ public class ProfileActivity extends AppCompatActivity {
                      size=dataSnapshot.getChildrenCount();
                     boolean condition= parse(jsonChild,CreatorUID,size);
                     if(condition){
-                        String name = dataSnapshot.child(jsonChild).child("name").getValue().toString();
-                        String videoname=dataSnapshot.child(jsonChild).child("mVideoName").getValue().toString();
-                        List<String> tag= Collections.singletonList(dataSnapshot.child(jsonChild).child("tags").getValue().toString());
-                        String uri=dataSnapshot.child(jsonChild).child("downloadUrl").getValue().toString();
-                        String mdescription = dataSnapshot.child(jsonChild).child("description").getValue().toString();
-                        names.add(name);
-                        videonames.add(videoname);
-                        uris.add(uri);
-                        tags.add(tag);
-                        description.add(mdescription);
+                        try {
+                            String name = dataSnapshot.child(jsonChild).child("name").getValue().toString();
+                            String videoname = dataSnapshot.child(jsonChild).child("mVideoName").getValue().toString();
+                            List<String> tag = Collections.singletonList(dataSnapshot.child(jsonChild).child("tags").getValue().toString());
+                            String uri = dataSnapshot.child(jsonChild).child("downloadUrl").getValue().toString();
+                            String mdescription = dataSnapshot.child(jsonChild).child("description").getValue().toString();
+                            names.add(name);
+                            videonames.add(videoname);
+                            uris.add(uri);
+                            tags.add(tag);
+                            description.add(mdescription);
+                        }
+                        catch (NullPointerException e){
+                            Log.v(TAG,"Nullpointer because of desc"+e);
+                        }
                     }
 
                 }
@@ -115,44 +123,46 @@ public class ProfileActivity extends AppCompatActivity {
 
             }
         });
+try {
+    mAuthListener = new FirebaseAuth.AuthStateListener() {
+        @Override
+        public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+            user = firebaseAuth.getCurrentUser();
+            if (user != null) {
+                user.reload().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        mTextViewName.setText(NavDraw.getUserName(user));
+                        mTextViewEmail.setText(NavDraw.getEmail(user));
 
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    user.reload().addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            mTextViewName.setText(NavDraw.getUserName(user));
-                            mTextViewEmail.setText(NavDraw.getEmail(user));
-
-                            try {
-                                URL mUrl=new URL(NavDraw.getPhotourl(user));
-                                GlideApp
-                                        .with(getApplicationContext())
-                                        .load(mUrl)
-                                        .override(130, 130)
-                                        .apply(RequestOptions.circleCropTransform())
-                                        .into(mImageView);
-                            } catch (MalformedURLException e) {
-                                e.printStackTrace();
-                            }
+                        try {
+                            URL mUrl = new URL(NavDraw.getPhotourl(user));
+                            GlideApp
+                                    .with(getApplicationContext())
+                                    .load(mUrl)
+                                    .override(130, 130)
+                                    .apply(RequestOptions.circleCropTransform())
+                                    .into(mImageView);
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
                         }
-                    });
-                    // User is signed in
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                    }
+                });
+                // User is signed in
+                Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
 
 
-
-                } else {
-                    // User is signed out
-                    Log.d(TAG, "onAuthStateChanged:signed_out");
-                }
-                // ...
+            } else {
+                // User is signed out
+                Log.d(TAG, "onAuthStateChanged:signed_out");
             }
-        };
-
+            // ...
+        }
+    };
+}
+catch (NullPointerException e){
+    Log.v(TAG,"Nullpointer"+ e);
+}
 
     }
     public boolean parse(String jsonchild,String UID,Long size){

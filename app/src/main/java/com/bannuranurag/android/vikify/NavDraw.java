@@ -135,44 +135,46 @@ public class NavDraw extends AppCompatActivity
 
 
 
+try {
+    mAuthListener = new FirebaseAuth.AuthStateListener() {
+        @Override
+        public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+            user = firebaseAuth.getCurrentUser();
+            if (user != null) {
+                user.reload().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        mTextViewName.setText(getUserName(user));
+                        mTextViewEmail.setText(getEmail(user));
 
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                 user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    user.reload().addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            mTextViewName.setText(getUserName(user));
-                            mTextViewEmail.setText(getEmail(user));
-
-                            try {
-                                URL mUrl=new URL(getPhotourl(user));
-                                GlideApp
-                                        .with(getApplicationContext())
-                                        .load(mUrl)
-                                        .override(130, 130)
-                                        .apply(RequestOptions.circleCropTransform())
-                                        .into(mImageView);
-                            } catch (MalformedURLException e) {
-                                e.printStackTrace();
-                            }
+                        try {
+                            URL mUrl = new URL(getPhotourl(user));
+                            GlideApp
+                                    .with(getApplicationContext())
+                                    .load(mUrl)
+                                    .override(130, 130)
+                                    .apply(RequestOptions.circleCropTransform())
+                                    .into(mImageView);
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
                         }
-                    });
-                    // User is signed in
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                    }
+                });
+                // User is signed in
+                Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
 
 
-
-                } else {
-                    // User is signed out
-                    Log.d(TAG, "onAuthStateChanged:signed_out");
-                }
-                // ...
+            } else {
+                // User is signed out
+                Log.d(TAG, "onAuthStateChanged:signed_out");
             }
-        };
-
+            // ...
+        }
+    };
+}
+catch (NullPointerException e){
+    Log.v(TAG,"Nullpointer"+e);
+}
 
         database.addChildEventListener(new ChildEventListener() {
             @Override

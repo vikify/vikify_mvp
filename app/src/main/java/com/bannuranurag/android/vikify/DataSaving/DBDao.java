@@ -15,6 +15,8 @@ public interface DBDao {                            //This interface is used to 
     @Query("DELETE FROM saved_videos")
     void deleteAll();
 
+    @Query("SELECT * FROM saved_videos where creator_uid = creator_uid")
+
     @Insert
     void insertOnlySingleVideo(DBEntityClass video);
 

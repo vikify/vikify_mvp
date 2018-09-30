@@ -110,7 +110,7 @@ public class glogin extends AppCompatActivity {
         Log.v(TAG,"USER is:"+currentUser);
         if(currentUser!=null)
         {
-            Log.v(TAG,"Photo: URL"+currentUser.getPhotoUrl()+currentUser.getEmail()+currentUser.getDisplayName());
+
             Intent intent=new Intent(this,NavDraw.class);
             startActivity(intent);
            finish();
