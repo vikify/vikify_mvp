@@ -19,4 +19,5 @@
     <string name="saved">Saved</string>
     <string name="signout">Signout</string>
     <string name="write_a_description_about_your_video">Write a description about your video</string>
+    <string name="no_video_desc">No description for this video</string>
 </resources>

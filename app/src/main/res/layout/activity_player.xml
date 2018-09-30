@@ -19,6 +19,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/text"
         android:textColor="#ec0303"
-        android:text="Hello"/>
+        android:padding="3dp"
+        android:text="@string/no_video_desc"/>
 </FrameLayout>
 </android.support.constraint.ConstraintLayout>

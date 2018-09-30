@@ -308,8 +308,10 @@ public class CameraActivity extends AppCompatActivity {
                 File copyfile = new File(getBaseContext().getFilesDir()+File.separator+uniquenumber+".mp4");
                 String path=  SavingImages.savingvids(mfile,copyfile);
                 Log.v(TAG,"PATIS"+path);
-
                 run(path,getUnixTimeStamp(),NavDraw.getUserUID(),videoDB);
+                Intent mIntent = new Intent(CameraActivity.this,NavDraw.class);
+                startActivity(mIntent);
+                finish();
             }
         });
 
@@ -572,6 +574,7 @@ public class CameraActivity extends AppCompatActivity {
                 Log.v(TAG,"VideosAre:"+videos);
             }
         }) .start();
+        Toast.makeText(CameraActivity.this,"Video Saved",Toast.LENGTH_SHORT).show();
     }
 
 }
