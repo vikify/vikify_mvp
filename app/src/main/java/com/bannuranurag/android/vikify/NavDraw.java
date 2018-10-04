@@ -44,25 +44,27 @@ import com.google.firebase.storage.StorageReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class NavDraw extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
+    private List<String> tagList = new ArrayList<>();
     private RecyclerView mRecycleViewVertical;
     private RecyclerView.LayoutManager mLayoutManager;
     private RecyclerView.Adapter mAdapter;
     List<String> mFinalName = new ArrayList<>();
     List<String> mName= new ArrayList<>();
+    HorizontalClass video_class;
     private List<HorizontalClass> yearList= new ArrayList<>();
-    private List<HorizontalClass> mCreatorList= new ArrayList<>();
+    private List<HorizontalClass> videoList= new ArrayList<>();
     private List<String> tags= new ArrayList<>();
     private List<String> finalTags=new ArrayList<>();
     String valueName,valueTags;
     LinearLayout mLinearLayout;
     ProgressBar mProgresBar;
     StorageReference storageReference,mVideoReference;
-    DatabaseReference mDatabaseReference;
+    DatabaseReference mDatabaseReference,databaseReference;
     private static final String TAG="State";
     AlertDialog.Builder builder;
     FirebaseAuth.AuthStateListener mAuthListener;
@@ -71,6 +73,8 @@ public class NavDraw extends AppCompatActivity
     TextView mTextViewName,mTextViewEmail;
     ImageView mImageView;
     FirebaseUser user;
+    public static final int NEW_WORD_ACTIVITY_REQUEST_CODE = 1;
+    public static final String EXTRA_REPLY = "com.example.android.VideoList.REPLY";
     @Override
     protected void onResume() {
         Log.v(TAG,"OnResume");
@@ -109,8 +113,7 @@ public class NavDraw extends AppCompatActivity
 
         storageReference= FirebaseStorage.getInstance().getReference();
         mVideoReference=storageReference.child("videos/");
-
-    mAuth=FirebaseAuth.getInstance();
+        mAuth=FirebaseAuth.getInstance();
 
 //        String Uid= FirebaseAuth.getInstance().getUid();
         user = FirebaseAuth.getInstance().getCurrentUser();
@@ -144,11 +147,11 @@ try {
                 user.reload().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        mTextViewName.setText(getUserName(user));
-                        mTextViewEmail.setText(getEmail(user));
+                        mTextViewName.setText(user.getDisplayName());
+                        mTextViewEmail.setText(user.getEmail());
 
                         try {
-                            URL mUrl = new URL(getPhotourl(user));
+                            URL mUrl = new URL(user.getPhotoUrl().toString());
                             GlideApp
                                     .with(getApplicationContext())
                                     .load(mUrl)
@@ -216,11 +219,60 @@ catch (NullPointerException e){
             }
         });
 
-
-
-        database.addListenerForSingleValueEvent(new ValueEventListener() {
+//Video population
+        databaseReference= FirebaseDatabase.getInstance().getReference().child("VikifyDatabase").child("Video-details");
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                videoList.clear();
+                for(DataSnapshot ds:dataSnapshot.getChildren()){
+                    try {
+                        String creatorName=ds.child("name").getValue().toString();
+                        long count = ds.child("tags").getChildrenCount();
+                        Log.v(TAG,"TAGSCOUNT"+count);
+                        List<String> taglist = new ArrayList<>();
+                        for(long i=0;i<count;i++) {
+                            String tagsCount = Long.toString(i);
+                            String tags = ds.child("tags").child(tagsCount).getValue().toString();
+                            taglist.add(tags);
+                        }
+                        String videoName=ds.child("mVideoName").getValue().toString();
+                        String videoURL=ds.child("downloadUrl").getValue().toString();
+                        String videoDescription = ds.child("description").getValue().toString();
+                        // Log.v(TAG,"NAME12345" + creatorName + " Tags: " + tags + " URL: " + videoURL+" Dscrip"+videoDescription+" VideoName"+videoName);
+                        video_class= new HorizontalClass(creatorName,videoName,videoURL,videoDescription,taglist);
+                        Log.v(TAG, "Feed names" + video_class.getmCreator() + " Feed tags" + video_class.getTags());
+                        videoList.add(video_class);
+
+                    }
+                    catch (NullPointerException e){
+                        Log.v(TAG,"NULL at feed population"+e);
+                    }
+//                    for(long i=0;i<videoList.size();i++) {
+//
+//
+//                    }
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+        database.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                mFinalName.clear();finalTags.clear();
+                HashSet<HorizontalClass> hashSet = new HashSet<HorizontalClass>();
+                hashSet.addAll(videoList);
+                videoList.clear();
+                videoList.addAll(hashSet);
+                Log.v(TAG,"sexuio"+videoList.size());
                 TagClass tagClass= new TagClass();
                 Log.v(TAG,"Data89"+dataSnapshot);
                 long mNameSize=dataSnapshot.child("VikifyDatabase").child("Content-details").getChildrenCount();
@@ -263,19 +315,15 @@ catch (NullPointerException e){
 
                 mRecycleViewVertical.setLayoutManager(mLayoutManager);
 
+            Log.v(TAG,"VideoList"+videoList);
 
-
-                mAdapter=new verticalAdapter(getApplicationContext(), mFinalName,yearList,finalTags);
+                mAdapter=new verticalAdapter(getApplicationContext(), mFinalName,videoList,finalTags,databaseReference);
 
 
                 Log.v(TAG,"hello100"+mFinalName);
 
 
                 mRecycleViewVertical.setAdapter(mAdapter);
-
-
-
-
 
 
             }
@@ -289,12 +337,8 @@ catch (NullPointerException e){
         });
 
 
-        prepareYearData();
-
-
 
     }
-
 
 
     @Override
@@ -357,6 +401,9 @@ catch (NullPointerException e){
         // Handle the camera action
         if (id == R.id.nav_gallery) {
 
+            Intent intent = new Intent(NavDraw.this, SavedVideos.class);
+            startActivityForResult(intent, NEW_WORD_ACTIVITY_REQUEST_CODE);
+
         } else if(id==R.id.nav_goto_profile){
             Intent mIntent=new Intent(this,ProfileActivity.class);
             FirebaseUser camUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -418,79 +465,4 @@ catch (NullPointerException e){
 
 
 
-    public void prepareYearData(){
-        mDatabaseReference=FirebaseDatabase.getInstance().getReference();
-        mDatabaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Log.v(TAG,"Datasnap69"+dataSnapshot.child("VikifyDatabase").child("Video-details"));
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-
-        HorizontalClass hClass=new HorizontalClass("Creator");
-        yearList.add(hClass);
-
-        hClass=new HorizontalClass("Creator");
-        yearList.add(hClass);
-
-        hClass=new HorizontalClass("Creator");
-        yearList.add(hClass);
-
-        hClass=new HorizontalClass("Creator");
-        yearList.add(hClass);
-
-        hClass=new HorizontalClass("Creator");
-        yearList.add(hClass);
-
-        hClass=new HorizontalClass("Creator");
-        yearList.add(hClass);
-
-        hClass=new HorizontalClass("Creator");
-        yearList.add(hClass);
-        hClass=new HorizontalClass("Creator");
-        yearList.add(hClass);
-
-        hClass=new HorizontalClass("Creator");
-        yearList.add(hClass);
-
-        hClass=new HorizontalClass("Creator");
-        yearList.add(hClass);
-
-    }
-
-//    public void getUserProfile(FirebaseUser user){
-//        mTextViewName.setText(getUserName(user));
-//        mTextViewEmail.setText(getEmail(user));
-//
-//        try {
-//            URL mUrl=new URL(getPhotourl(user));
-//            GlideApp
-//                    .with(getApplicationContext())
-//                    .load(mUrl)
-//                    .override(130, 130)
-//                    .apply(RequestOptions.circleCropTransform())
-//                    .into(mImageView);
-//        } catch (MalformedURLException e) {
-//            e.printStackTrace();
-//        }
-//
-//    }
-    public static String getUserName(FirebaseUser user){
-        String name = user.getDisplayName();
-        return name;
-    }
-    public static String getEmail(FirebaseUser user){
-        String email = user.getEmail();
-        return email;
-    }
-    public static String getPhotourl(FirebaseUser user){
-        String photoUrl = user.getPhotoUrl().toString();
-        return photoUrl;
-    }
 }

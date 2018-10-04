@@ -33,9 +33,11 @@ public class ProfileVideosAdapter extends RecyclerView.Adapter<ProfileVideosAdap
         this.creatorname = creatorname;
         this.downloadurl = downloadurl;
         this.mContext=mContext;
-       this.tags = tags;
-       this.description=description;
+        this.tags = tags;
+        this.description=description;
     }
+
+
 
     @NonNull
     @Override

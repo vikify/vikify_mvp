@@ -1,12 +1,16 @@
 package com.bannuranurag.android.vikify;
 
+import android.Manifest;
+import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Room;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -31,6 +35,7 @@ import android.widget.VideoView;
 import com.bannuranurag.android.vikify.DataSaving.DBEntityClass;
 import com.bannuranurag.android.vikify.DataSaving.SavedVideosDB;
 import com.bannuranurag.android.vikify.DataSaving.SavingImages;
+import com.bannuranurag.android.vikify.DataSaving.VideoViewModel;
 import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -62,6 +67,7 @@ public class CameraActivity extends AppCompatActivity {
     File mfile;
     File mVideoFileForUpload;
     TextView mTextViewProg;
+    private static final int RECORD_REQUEST_CODE = 101;
     String mCreatorUID,mCreatorName;
     long mtimestamp;
     Uri mVideoPath;
@@ -70,6 +76,7 @@ public class CameraActivity extends AppCompatActivity {
     FrameLayout mFrameLayout,mRecordingFrameLayout;
     ProgressBar progressBar;
     LinearLayout mBtnLayout,OptionsID;
+    private VideoViewModel videoModel;
     EditText mVideoName,mDescription;
     Boolean isFront;
     AutoCompleteTextView mAutoCompleteTextView;
@@ -85,7 +92,7 @@ public class CameraActivity extends AppCompatActivity {
     List<String> reversedSelectedTags=new ArrayList<>();
     private List<String> finalTags=new ArrayList<>();
     private static final String TAG = "CameraActivity";
-    final String DATABASE_NAME = "savedvideos_db";
+    final String DATABASE_NAME = "SavedVideos";
 
     CountDownTimer countDownTimer=new CountDownTimer(60000, 1000) {
 
@@ -102,7 +109,6 @@ public class CameraActivity extends AppCompatActivity {
             textView.setVisibility(View.GONE);
         }
     };
-
 
 
     @Override
@@ -133,6 +139,22 @@ public class CameraActivity extends AppCompatActivity {
         stopBtn=findViewById(R.id.stopbtn);
         stopBtn.setVisibility(View.GONE);
         OptionsID=findViewById(R.id.options_id);
+
+        int permission = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO);
+        int permission1 = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.CAMERA);
+
+        if(permission1!=PackageManager.PERMISSION_GRANTED){
+            Log.i(TAG, "Permission to Capture denied");
+            makeRequest();
+        }
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            Log.i(TAG, "Permission to record denied");
+            makeRequest();
+        }
+
+//        videoModel = ViewModelProviders.of(this).get(.class);
 
         tagsSelect.add("Tag1");
         tagsSelect.add("Tag2");
@@ -228,9 +250,11 @@ public class CameraActivity extends AppCompatActivity {
         });
 
 
+
         replayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
 
 
                     mVideoView.setVideoURI(mVideoPath);
@@ -303,15 +327,18 @@ public class CameraActivity extends AppCompatActivity {
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                try{
                 long number = (long) Math.floor(Math.random() * 9_000_000_000L) + 1_000_000_000L;
                 String uniquenumber = Long.toString(number);
                 File copyfile = new File(getBaseContext().getFilesDir()+File.separator+uniquenumber+".mp4");
                 String path=  SavingImages.savingvids(mfile,copyfile);
                 Log.v(TAG,"PATIS"+path);
                 run(path,getUnixTimeStamp(),NavDraw.getUserUID(),videoDB);
-                Intent mIntent = new Intent(CameraActivity.this,NavDraw.class);
-                startActivity(mIntent);
                 finish();
+                }
+                catch (Exception e){
+                    Log.v(TAG,"Exception"+e);
+                }
             }
         });
 
@@ -444,15 +471,19 @@ public class CameraActivity extends AppCompatActivity {
 
 
 
+
     private void sendDataToFirebase(String filePath, final String name, final List<String> selectedTags, final String description){
         final Uri fileUpload = Uri.fromFile(new File(filePath));
+
          mtimestamp=getUnixTimeStamp();
+        Log.v(TAG,"File passed is "+fileUpload);
+        Log.v(TAG,"File path is "+filePath);
         final StorageReference mVideoRef= mStorageRef.child("videos/"+mCreatorUID+"uniqueTimeStamp"+mtimestamp+"Name-"+name+"-"+"Creator-"+mCreatorName+"-Tags-"+selectedTags);  //Current time stamp in UTC
         mVideoRef.putFile(fileUpload)
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        Toast.makeText(getApplicationContext(),"Successfull",Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getApplicationContext(),"Successfull",Toast.LENGTH_SHORT).show();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -570,11 +601,42 @@ public class CameraActivity extends AppCompatActivity {
                 videoEntity.setmFilePath(path);
                 videoEntity.setUnixTimeStamp(timeStamp);
                 videoDB.daoAccess().insertOnlySingleVideo(videoEntity);
-                List<DBEntityClass> videos=videoDB.daoAccess().getAllVideos();
-                Log.v(TAG,"VideosAre:"+videos);
+                try {
+                    videoModel.insert(videoEntity);
+                }
+                catch (Exception e){
+                    Log.v(TAG,"Exception: "+e);
+                }
+                LiveData<List<DBEntityClass>> videos=videoDB.daoAccess().getAllVideos();
+                Log.v(TAG,"VideosAretotal:"+videoDB.daoAccess().getVideos(userUID));
+               LiveData<List<DBEntityClass>> videosare=videoDB.daoAccess().getVideos(userUID);
+                videoDB.close();
             }
         }) .start();
         Toast.makeText(CameraActivity.this,"Video Saved",Toast.LENGTH_SHORT).show();
     }
 
+    protected void makeRequest() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.RECORD_AUDIO},
+                RECORD_REQUEST_CODE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case RECORD_REQUEST_CODE: {
+
+                if (grantResults.length == 0
+                        || grantResults[0] !=
+                        PackageManager.PERMISSION_GRANTED) {
+
+                    Log.i(TAG, "Permission has been denied by user");
+                } else {
+                    Log.i(TAG, "Permission has been granted by user");
+                }
+                return;
+            }
+        }
+    }
 }

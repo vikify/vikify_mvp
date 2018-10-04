@@ -20,4 +20,6 @@
     <string name="signout">Signout</string>
     <string name="write_a_description_about_your_video">Write a description about your video</string>
     <string name="no_video_desc">No description for this video</string>
+    <string name="title_activity_saved_videos">SavedVideos</string>
+    <string name="is_this_video_a_question_you_would_like_answered">Is this video a question you would like answered?</string>
 </resources>

@@ -84,6 +84,7 @@ public class ProfileActivity extends AppCompatActivity {
 
 
 
+
         mDatabaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -132,11 +133,11 @@ try {
                 user.reload().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        mTextViewName.setText(NavDraw.getUserName(user));
-                        mTextViewEmail.setText(NavDraw.getEmail(user));
+                        mTextViewName.setText(user.getDisplayName());
+                        mTextViewEmail.setText(user.getEmail());
 
                         try {
-                            URL mUrl = new URL(NavDraw.getPhotourl(user));
+                            URL mUrl = new URL(user.getPhotoUrl().toString());
                             GlideApp
                                     .with(getApplicationContext())
                                     .load(mUrl)

@@ -19,7 +19,8 @@ public class DBEntityClass {
         this.key = key;
     }
 
-
+    public DBEntityClass() {
+    }
 
     @NonNull
 
@@ -33,14 +34,9 @@ public class DBEntityClass {
     @ColumnInfo(name = "creator_uid")
     private String creatorUID;
 
-    public DBEntityClass() {
+    public DBEntityClass(@NonNull String mFilePath) {
+        this.mFilePath = mFilePath;
     }
-
-//    public DBEntityClass(@NonNull String mFilePath, long unixTimeStamp, String creatorUID) {
-//        this.mFilePath = mFilePath;
-//        this.unixTimeStamp = unixTimeStamp;
-//        this.creatorUID = creatorUID;
-//    }
 
     @NonNull
     public String getmFilePath() {
@@ -67,4 +63,6 @@ public class DBEntityClass {
     public void setCreatorUID(String creatorUID) {
         this.creatorUID = creatorUID;
     }
+
+
 }
