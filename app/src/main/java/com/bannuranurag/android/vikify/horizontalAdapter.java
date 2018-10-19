@@ -2,6 +2,7 @@ package com.bannuranurag.android.vikify;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -24,7 +25,7 @@ public class horizontalAdapter extends RecyclerView.Adapter<horizontalAdapter.My
     Context mContext;
 
 
-    private List<HorizontalClass> mCreatorList;
+    private List<HorizontalClass> mVideoList;
     
 
     public horizontalAdapter() {
@@ -46,12 +47,13 @@ public class horizontalAdapter extends RecyclerView.Adapter<horizontalAdapter.My
     }
 
     public horizontalAdapter(List<HorizontalClass> yearList) {
-        this.mCreatorList=yearList;
+        this.mVideoList=yearList;
     }
 
-    public void setData(List<HorizontalClass> creator, Context context) {
-        if (creator != mCreatorList) {
-            mCreatorList = creator;
+    public void setData(List<HorizontalClass> videoList, Context context) {
+        if (videoList != mVideoList) {
+            mVideoList = videoList;
+            Log.v(TAG,"Call from horadapter"+mVideoList);
             notifyDataSetChanged();
         }
         mContext=context;
@@ -73,14 +75,20 @@ public class horizontalAdapter extends RecyclerView.Adapter<horizontalAdapter.My
 
     @Override
     public void onBindViewHolder(@NonNull final MyViewHolder holder, final int position) {
-        HorizontalClass dataClass = mCreatorList.get(position);
-        holder.mCreator.setText(dataClass.getmYear());
+        HorizontalClass dataClass = mVideoList.get(position);
+        holder.mCreator.setText(dataClass.getmVideoName());
         holder.mLinearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                Log.v("TAG","position "+holder.mCreator.getText().toString());
-               mContext.startActivity(new Intent(mContext, PlayerActivity.class));
-              Log.v("TAG", "Bucket"+ mStorageRef.getBucket());
+                Intent mIntent = new Intent(mContext,PlayerActivity.class);
+                Bundle extras = new Bundle();
+                extras.putString("URL",mVideoList.get(position).getmVideoURL());
+                extras.putString("Description",mVideoList.get(position).getDesc());
+                mIntent.putExtras(extras);
+                mContext.startActivity(mIntent);
+           //    mContext.startActivity(new Intent(mContext, PlayerActivity.class));
+              Log.v("TAG", "Bucket"+ mVideoList.get(position).getmVideoURL());
             }
         });
 
@@ -99,6 +107,6 @@ public class horizontalAdapter extends RecyclerView.Adapter<horizontalAdapter.My
 
     @Override
     public int getItemCount() {
-        return mCreatorList.size();
+        return mVideoList.size();
     }
 }

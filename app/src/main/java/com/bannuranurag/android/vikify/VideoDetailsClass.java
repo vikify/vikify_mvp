@@ -24,6 +24,12 @@ public class VideoDetailsClass {
         this.description=description;
     }
 
+    public VideoDetailsClass(String creatorname,String downloadUrl, String description) {
+        this.downloadUrl = downloadUrl;
+        this.description = description;
+        this.name=creatorname;
+    }
+
     public String getDescription() {
         return description;
     }

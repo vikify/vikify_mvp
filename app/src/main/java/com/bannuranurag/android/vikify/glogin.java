@@ -147,7 +147,7 @@ public class glogin extends AppCompatActivity {
         }
     }
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-        Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
+        Log.d(TAG, "FirebaseAuthWithGoogle:" + acct.getId());
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         Log.v(TAG,"Executed1");
@@ -161,7 +161,7 @@ public class glogin extends AppCompatActivity {
                             Log.v(TAG,"Executed2");
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
+
                             //updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
