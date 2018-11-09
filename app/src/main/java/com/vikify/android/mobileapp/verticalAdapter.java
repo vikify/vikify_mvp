@@ -45,7 +45,7 @@ public class verticalAdapter extends RecyclerView.Adapter<verticalAdapter.MyView
             Context context= view.getContext();
             title = (TextView) view.findViewById(R.id.title);
 //            genre = (TextView) view.findViewById(R.id.genre);
-            mCardView=view.findViewById(R.id.card_view);
+//            mCardView=view.findViewById(R.id.card_view);
             Tags=(TextView) view.findViewById(R.id.tagText);
 
 

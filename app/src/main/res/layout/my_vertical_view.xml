@@ -14,8 +14,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_margin="10dp"
-        card_view:cardCornerRadius="2dp"
-        android:elevation="3dp">
+        card_view:cardCornerRadius="10dp"
+        android:elevation="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -41,15 +41,6 @@
                 android:orientation="vertical"
                 android:layout_height="fill_parent">
 
-                <!--<TextView-->
-                    <!--android:id="@+id/genre"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:padding="5dp"-->
-                    <!--android:textStyle="italic"-->
-                    <!--android:layout_marginBottom="10dp"-->
-                    <!--android:background="@drawable/rectangular_border"-->
-                    <!--android:layout_below="@id/title" />-->
 
                 <android.support.v7.widget.RecyclerView
                     android:layout_width="wrap_content"
