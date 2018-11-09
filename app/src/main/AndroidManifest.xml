@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.bannuranurag.android.vikify">
+    package="com.vikify.android.mobileapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -17,26 +17,26 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         tools:ignore="HardcodedDebugMode">
-        <activity android:name=".SplashScreen">
+        <activity android:name="com.vikify.android.mobileapp.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" />
+        <activity android:name="com.vikify.android.mobileapp.MainActivity" />
         <activity
-            android:name=".NavDraw"
+            android:name="com.vikify.android.mobileapp.NavDraw"
             android:label="NavDraw"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
-            android:name=".glogin"
+            android:name="com.vikify.android.mobileapp.glogin"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
-            android:name=".CameraActivity"
+            android:name="com.vikify.android.mobileapp.CameraActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity android:name=".PlayerActivity" />
-        <activity android:name=".ProfileActivity" />
+        <activity android:name="com.vikify.android.mobileapp.PlayerActivity" />
+        <activity android:name="com.vikify.android.mobileapp.ProfileActivity" />
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
@@ -58,9 +58,9 @@
                 <data android:scheme="@string/fbloginprotocolscheme" />
             </intent-filter>
         </activity>
-        <activity android:name=".SavedVideos"
+        <activity android:name="com.vikify.android.mobileapp.SavedVideos"
             android:noHistory="true"/>
-        <activity android:name=".DataSaving.VideoActivity"></activity>
+        <activity android:name="com.vikify.android.mobileapp.DataSaving.VideoActivity"></activity>
     </application>
 
 </manifest>

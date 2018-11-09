@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Gradle: com.github.HotBitmapGG:RingProgressBar-V1.2.2">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/wrapper/dists/gradle-4.9-all/caches/transforms-1/files-1.1/RingProgressBar-V1.2.2.aar/25d5d1b694d0445099116da7945d276a/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/wrapper/dists/gradle-4.9-all/caches/transforms-1/files-1.1/RingProgressBar-V1.2.2.aar/25d5d1b694d0445099116da7945d276a/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

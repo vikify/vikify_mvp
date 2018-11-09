@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".CameraActivity">
+    tools:context="com.vikify.android.mobileapp.CameraActivity">
 <FrameLayout
     android:id="@+id/main_Frame"
     android:layout_width="match_parent"
@@ -94,9 +94,12 @@
         <Button
             android:id="@+id/picture"
             android:layout_width="wrap_content"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/ic_record"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:text="Record" />
+
+             />
 
         <!--<ImageView-->
         <!--android:layout_width="100dp"-->
@@ -115,12 +118,16 @@
             android:layout_width="wrap_content"
             android:layout_gravity="bottom"
             android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/ic_stop"
             android:text="Stop" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Replay"
+            android:drawableTop="@drawable/ic_replay"
+            android:background="@android:color/transparent"
             android:layout_gravity="center_vertical"
             android:id="@+id/replayBtn"/>
 
@@ -129,6 +136,8 @@
             android:layout_gravity="center_vertical"
             android:layout_height="wrap_content"
             android:text="Upload"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/ic_upload"
             android:id="@+id/uploadBtn"/>
 
         <Button
@@ -136,6 +145,8 @@
             android:layout_gravity="center_vertical"
             android:layout_height="wrap_content"
             android:text="Save"
+            android:drawableTop="@drawable/ic_download_button"
+            android:background="@android:color/transparent"
             android:id="@+id/saveBtn"/>
 
 

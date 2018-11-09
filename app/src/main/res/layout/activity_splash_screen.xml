@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#3A332B"
-    tools:context=".SplashScreen">
+    tools:context="com.vikify.android.mobileapp.SplashScreen">
 
 
     <ImageView
