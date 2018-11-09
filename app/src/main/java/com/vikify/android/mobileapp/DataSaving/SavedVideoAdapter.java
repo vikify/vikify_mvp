@@ -54,7 +54,7 @@ Context mContext;
         if (mVideos != null) {
             final DBEntityClass current = mVideos.get(position);
             holder.VideoName.setText(current.getmFilePath().substring(current.getmFilePath().indexOf("files/")).substring(6));
-            holder.CreatorName.setText(" ");
+            holder.CreatorName.setText("");
             holder.mLinearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
