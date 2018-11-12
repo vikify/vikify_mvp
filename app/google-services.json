@@ -65,6 +65,74 @@
           "status": 2
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:641771549091:android:ddaed73603909af5",
+        "android_client_info": {
+          "package_name": "com.vikify.android.mobileapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "641771549091-i0mnjn8eajldsdo9ubd1brgkleci1iih.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vikify.android.mobileapp",
+            "certificate_hash": "3d73ed39bf22192ff0e0fa0e8970398ecf2fb59b"
+          }
+        },
+        {
+          "client_id": "641771549091-sc1jfui4kdk6plmbbfvpab6tems7hfsc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vikify.android.mobileapp",
+            "certificate_hash": "a233da497ac8b1fae810d38c62fe33f11f5efb8f"
+          }
+        },
+        {
+          "client_id": "641771549091-ih9im7dl0btuq2aki7ap9hfrelohopgi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vikify.android.mobileapp",
+            "certificate_hash": "87875af2911c9a5f2260b59b6657371cb8ec53ef"
+          }
+        },
+        {
+          "client_id": "641771549091-quu8n0c5bf6eik6hj9jjbmhlq5hg789b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vikify.android.mobileapp",
+            "certificate_hash": "ac83076e555b8d95033442cc8b25f4898de700a5"
+          }
+        },
+        {
+          "client_id": "641771549091-85e6apghe8sbn18pciopbhjsnf4p86bq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDx2J_HGBWBYVgCyDx88aufu84vL8RBHas"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "641771549091-85e6apghe8sbn18pciopbhjsnf4p86bq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
     }
   ],
   "configuration_version": "1"

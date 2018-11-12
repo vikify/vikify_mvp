@@ -7,8 +7,6 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>
-    <string name="facebook_app_id">636944696699645</string>
-    <string name="fbloginprotocolscheme">fb636944696699645</string>
     <string name="action_settings">Settings</string>
     <string name="nav_header_title">Android Studio</string>
     <string name="nav_header_subtitle">android.studio@android.com</string>
@@ -16,10 +14,13 @@
     <string name="Sendname">Name your Video</string>
     <string name="title_name">Vikify</string>
     <string name="profile">Profile</string>
+    <string name="facebook_app_id">568649503555762</string>
+    <string name="fb_login_protocol_scheme">fb568649503555762</string>
     <string name="saved">Saved</string>
     <string name="signout">Signout</string>
     <string name="write_a_description_about_your_video">Write a description about your video</string>
     <string name="no_video_desc">No description for this video</string>
     <string name="title_activity_saved_videos">SavedVideos</string>
     <string name="is_this_video_a_question_you_would_like_answered">Is this video a question you would like answered?</string>
+    <string name="enter_your_phone_number">+919999999999</string>
 </resources>
