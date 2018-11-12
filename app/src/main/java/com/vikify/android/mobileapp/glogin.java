@@ -40,7 +40,6 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 public class glogin extends AppCompatActivity {
@@ -63,11 +62,29 @@ public class glogin extends AppCompatActivity {
         setContentView(R.layout.activity_glogin);
         mAuth = FirebaseAuth.getInstance();
         callbackManager = CallbackManager.Factory.create();
-        loginButton = (LoginButton) findViewById(R.id.login_button);
-        loginButton.setReadPermissions(Arrays.asList(EMAIL));
+        loginButton =  findViewById(R.id.login_button);
+        loginButton.setReadPermissions("email","public_profile");
         FacebookSdk.sdkInitialize(getApplicationContext());
         phoneNumberButton = findViewById(R.id.phone_number_btn);
 
+
+        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                Log.v(TAG, "FBBUTTONCLICKED" + LoginManager.getInstance());
+                handleFacebookAccessToken(loginResult.getAccessToken());
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            public void onError(FacebookException e) {
+
+            }
+        });
 
         findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,6 +97,8 @@ public class glogin extends AppCompatActivity {
                 .requestEmail()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+
 
         phoneNumberButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -158,25 +177,6 @@ public class glogin extends AppCompatActivity {
         startActivityForResult(mSgnInIntent, RC_SIGN_IN);
     }
 
-    public void fbButtonClick(View v) {
-        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                Log.v(TAG, "FBBUTTONCLICKED" + LoginManager.getInstance());
-                handleFacebookAccessToken(loginResult.getAccessToken());
-            }
-
-            @Override
-            public void onCancel() {
-
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-
-            }
-        });
-    }
 
     @Override
     protected void onStart() {
@@ -310,5 +310,3 @@ public class glogin extends AppCompatActivity {
                 });
     }
 }
-
-

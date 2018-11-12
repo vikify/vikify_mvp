@@ -358,6 +358,7 @@ public class CameraActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mSaveButton.setVisibility(View.GONE);
+
                 if(mVideoPath!=null) {
                      AlertDialog.Builder builder = new AlertDialog.Builder(CameraActivity.this);
                      LayoutInflater inflater = CameraActivity.this.getLayoutInflater();
@@ -402,6 +403,7 @@ public class CameraActivity extends AppCompatActivity {
                                     stopBtn.setVisibility(View.GONE);
                                     mUButton.setVisibility(View.GONE);
                                     replayBtn.setVisibility(View.GONE);
+                                    mVideoView.pause();
                                     progressBar.setVisibility(View.VISIBLE);  mCancelButton.setVisibility(View.GONE);
                                     Toast.makeText(CameraActivity.this, "Video submitted", Toast.LENGTH_SHORT).show();
                                     sendDataToFirebase(mVideoFileForUpload.getPath(),videoName,selectedtags,description);

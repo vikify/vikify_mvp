@@ -99,6 +99,14 @@
           }
         },
         {
+          "client_id": "641771549091-quu8n0c5bf6eik6hj9jjbmhlq5hg789b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vikify.android.mobileapp",
+            "certificate_hash": "ac83076e555b8d95033442cc8b25f4898de700a5"
+          }
+        },
+        {
           "client_id": "641771549091-85e6apghe8sbn18pciopbhjsnf4p86bq.apps.googleusercontent.com",
           "client_type": 3
         }

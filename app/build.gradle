@@ -15,8 +15,8 @@ android {
         applicationId "com.vikify.android.mobileapp"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 37
-        versionName "2.1.6"
+        versionCode 41
+        versionName "3.2.0"
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
@@ -26,14 +26,14 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
-            shrinkResources false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            debuggable true
+            debuggable false
             signingConfig signingConfigs.config
         }
         debug {
-            debuggable true
+            debuggable false
         }
     }
 }

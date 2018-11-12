@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -114,6 +115,7 @@ public class NavDraw extends AppCompatActivity
         mVideoReference=storageReference.child("videos/");
         mAuth=FirebaseAuth.getInstance();
 
+        getKeyHash();
 //        String Uid= FirebaseAuth.getInstance().getUid();
         user = FirebaseAuth.getInstance().getCurrentUser();
         final DatabaseReference database = FirebaseDatabase.getInstance().getReference();
@@ -465,6 +467,10 @@ catch (NullPointerException e){
 
     }
 
+    public void getKeyHash(){
+        byte sha1[]={(byte)0xAC, (byte)0x83, (byte)0x07, 0x6E, 0x55, 0x5B, (byte)0x8D, (byte)0x95, 0x03, 0x34, 0x42, (byte)0xCC, (byte)0x8B, (byte)0x25, (byte)0xF4, (byte)0x89, (byte)0x8D, (byte)0xE7, (byte)0x00, (byte)0xA5};
+        Log.e("keyhash", Base64.encodeToString(sha1, Base64.NO_WRAP));
+    }
 
 
 }

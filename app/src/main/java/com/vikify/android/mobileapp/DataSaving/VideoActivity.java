@@ -30,6 +30,7 @@ import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -67,11 +68,13 @@ public class VideoActivity extends AppCompatActivity {
     ProgressBar progressBar;
     SavedVideosDB videosDB;
     LinearLayout mBtnLayout,OptionsID;
+    FirebaseAuth.AuthStateListener mAuthListener;
     private VideoViewModel videoModel;
     EditText mVideoName,mDescription;
     Boolean isFront;
     AutoCompleteTextView mAutoCompleteTextView;
     RecyclerView mRecyclerView;
+    FirebaseUser user;
     RecyclerView.Adapter mAdapter;
     RecyclerView.LayoutManager mLayoutManager;
     String valueName,valueTags;
@@ -100,6 +103,7 @@ public class VideoActivity extends AppCompatActivity {
         mVideoView=findViewById(R.id.play_saved_video_view);
         OptionsID=findViewById(R.id.options_id);
         mDeleteButton=findViewById(R.id.delete_saved_video);
+        user = FirebaseAuth.getInstance().getCurrentUser();
         tagsSelect.add("Tag1");
         tagsSelect.add("Tag2");
         tagsSelect.add("Tag3");
@@ -129,14 +133,7 @@ public class VideoActivity extends AppCompatActivity {
     mDeleteButton.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    videoDB.daoAccess().deleteVideoWithPath(path);
-                }
-            }) .start();
-
-
+           delete(videoDB,path);
             Toast.makeText(getApplicationContext(),"Deleted",Toast.LENGTH_SHORT).show();
 //            Intent goBackToSavedVideos= new Intent(VideoActivity.this, SavedVideos.class);
 //            startActivity(goBackToSavedVideos);
@@ -145,6 +142,30 @@ public class VideoActivity extends AppCompatActivity {
 
         }
     });
+
+        try {
+            mAuthListener = new FirebaseAuth.AuthStateListener() {
+                @Override
+                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                    user = firebaseAuth.getCurrentUser();
+                    if (user != null) {
+                        Log.v(TAG,"User is not null");
+                        mCreatorName=user.getDisplayName();
+                        passCreatorName(mCreatorName);
+
+                            }
+                        else {
+                        // User is signed out
+                        Log.v(TAG,"User is null");
+                        Log.d(TAG, "onAuthStateChanged:signed_out");
+                    }
+                    // ...
+                }
+            };
+        }
+        catch (NullPointerException e){
+            Log.v(TAG,"Nullpointer"+e);
+        }
 
         database.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -216,12 +237,16 @@ public class VideoActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int which) {
                             mVideoName=main_view.findViewById(R.id.videoName);
                             mDescription=main_view.findViewById(R.id.video_description);
+                            mDeleteButton.setVisibility(View.GONE);
+                            mVideoView.pause();
+                            progressBar.setVisibility(View.VISIBLE);
+                            mUButton.setVisibility(View.GONE);
                             String videoName= mVideoName.getText().toString();
                             String description=mDescription.getText().toString();
                             Log.v("TAG","VideoName:"+mVideoName.getText().toString());
                             progressBar.setVisibility(View.VISIBLE);
                             Toast.makeText(VideoActivity.this, "Video submitted", Toast.LENGTH_SHORT).show();
-                            sendDataToFirebase(path,videoName,selectedtags,description);
+                            sendDataToFirebase(path,videoName,selectedtags,description,path,videoDB,user.getDisplayName());
                         }
                     }).show();
 
@@ -274,7 +299,7 @@ public class VideoActivity extends AppCompatActivity {
 
 
 
-    private void sendDataToFirebase(String filePath, final String name, final List<String> selectedTags, final String description){
+    private void sendDataToFirebase(String filePath, final String name, final List<String> selectedTags, final String description, final String path, final SavedVideosDB videoDB, final String creator){
         final Uri fileUpload = Uri.fromFile(new File(filePath));
         mtimestamp=getUnixTimeStamp();
         Log.v(TAG,"File passed is "+fileUpload);
@@ -293,7 +318,7 @@ public class VideoActivity extends AppCompatActivity {
         }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                updateProgress(taskSnapshot,name,selectedTags,mVideoRef,mCreatorName,mtimestamp,description);
+                updateProgress(taskSnapshot,name,selectedTags,mVideoRef,creator,mtimestamp,description,path,videoDB);
             }
         }).addOnCanceledListener(new OnCanceledListener() {
             @Override
@@ -307,7 +332,7 @@ public class VideoActivity extends AppCompatActivity {
     }
 
 
-    private void updateProgress(UploadTask.TaskSnapshot taskSnapshot,String name,List<String> selectedtag,StorageReference Ref,String creatorname,long uniqueTimeStamp,String description){
+    private void updateProgress(UploadTask.TaskSnapshot taskSnapshot,String name,List<String> selectedtag,StorageReference Ref,String creatorname,long uniqueTimeStamp,String description, String path, SavedVideosDB videoDB){
         long FileSize=taskSnapshot.getTotalByteCount();
         long uploadBytes=taskSnapshot.getBytesTransferred();
 
@@ -323,8 +348,8 @@ public class VideoActivity extends AppCompatActivity {
             Intent mIntent=new Intent(VideoActivity.this,NavDraw.class);
             mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(mIntent);
+            delete(videoDB,path);
         }
-
     }
 
     private Uri sendVideoPath(Uri videoPath){
@@ -361,7 +386,7 @@ public class VideoActivity extends AppCompatActivity {
 
         VideoDetailsClass videoName=new VideoDetailsClass(name,selectedtags,uri,creatorName,description);
         String timeStamp=Long.toString(uniqueTimeStamp);
-        Log.v(TAG,"Name "+name+"Tags "+selectedtags+"URI "+uri+ " Description "+description);
+        Log.v(TAG,"Name "+name+"Tags "+selectedtags+"URI "+uri+ " Description "+description+ "Creator NAme"+creatorName);
         mDatabase = FirebaseDatabase.getInstance().getReference();
         try {
             mDatabase.child("VikifyDatabase").child("Video-details").child("Video By "+ FirebaseAuth.getInstance().getCurrentUser().getDisplayName()+" At "+timeStamp+" CreatorUID"+FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(videoName);
@@ -372,6 +397,15 @@ public class VideoActivity extends AppCompatActivity {
 
     }
 
+public void delete(final SavedVideosDB videoDB, final String path){
+    new Thread(new Runnable() {
+        @Override
+        public void run() {
+            videoDB.daoAccess().deleteVideoWithPath(path);
+        }
+    }) .start();
 
+
+}
 
 }

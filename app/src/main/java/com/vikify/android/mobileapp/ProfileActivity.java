@@ -116,7 +116,7 @@ public class ProfileActivity extends AppCompatActivity {
 
                 }
                 mAdapter.notifyDataSetChanged();
-              //  Log.v(TAG,"Final names "+names+" final uris "+uris+" Tags "+tags+" Videonames "+videonames+" Descriptions"+description);
+                Log.v(TAG,"Final names "+names+" final uris "+uris+" Tags "+tags+" Videonames "+videonames+" Descriptions"+description);
 
             }
 
@@ -136,7 +136,9 @@ try {
                     public void onComplete(@NonNull Task<Void> task) {
                         mTextViewName.setText(user.getDisplayName());
                         mTextViewEmail.setText(user.getEmail());
-
+                        if(user.getDisplayName()==null){
+                            mTextViewName.setText(user.getPhoneNumber());
+                        }
                         try {
                             URL mUrl = new URL(user.getPhotoUrl().toString());
                             GlideApp
