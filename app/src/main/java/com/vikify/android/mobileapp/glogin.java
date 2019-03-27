@@ -18,7 +18,6 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
-import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -71,7 +70,7 @@ public class glogin extends AppCompatActivity {
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.v(TAG, "FBBUTTONCLICKED" + LoginManager.getInstance());
+                Log.v(TAG, "Facebook login success");
                 handleFacebookAccessToken(loginResult.getAccessToken());
             }
 
@@ -82,7 +81,7 @@ public class glogin extends AppCompatActivity {
 
             @Override
             public void onError(FacebookException e) {
-
+                Log.v(TAG,"Facebook login failure");
             }
         });
 
@@ -261,16 +260,15 @@ public class glogin extends AppCompatActivity {
 
     private void handleFacebookAccessToken(AccessToken token) {
         Log.d(TAG, "handleFacebookAccessToken:" + token);
+        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         Intent intent = new Intent(getApplicationContext(), NavDraw.class);
         startActivity(intent);
         finish();
-        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();

@@ -106,9 +106,6 @@ public class PlayerActivity extends AppCompatActivity {
         player.setPlayWhenReady(playWhenReady);
         player.seekTo(0, 0);
 
-
-
-
     }
 
 

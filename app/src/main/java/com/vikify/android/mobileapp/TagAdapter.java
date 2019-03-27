@@ -8,12 +8,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class TagAdapter extends RecyclerView.Adapter<TagAdapter.MyViewHolder> {
-    private List<String> tags;
-
+    List<String> tags= new ArrayList<>();
+    private static final String TAG = "TagAdapter";
+    int count=0;
     Random rand = new Random();
 
     // Provide a reference to the views for each data item
@@ -42,8 +44,10 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.MyViewHolder> {
 
     public void setData(List<String> mtag) {
         if (mtag != tags) {
-            tags = mtag;
-            notifyDataSetChanged();
+            tags=mtag;
+//            Iterator<String> it = tags.iterator();
+//            while (it.hasNext())
+//                count++;
         }
     }
 
@@ -76,6 +80,6 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.MyViewHolder> {
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return tags.size();
+        return  tags.size();
     }
 }

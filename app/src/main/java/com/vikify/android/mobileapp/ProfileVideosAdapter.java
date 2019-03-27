@@ -57,20 +57,29 @@ public class ProfileVideosAdapter extends RecyclerView.Adapter<ProfileVideosAdap
                 @Override
                 public void onClick(View v) {
                     try {
-                        Intent mIntent = new Intent(mContext, PlayerActivity.class);
-                        Bundle bundle = new Bundle();
-                        bundle.putString("URL", downloadurl.get(position));
-                        bundle.putString("Description", description.get(position));
-                        mIntent.putExtras(bundle);
-                       // mIntent.putExtra("VideoURL", downloadurl.get(position));
-                        mContext.startActivity(mIntent);
+                        String url=downloadurl.get(position).toString();
+                        if(!url.contains("uniqueTimeStamp")){
+                            String youtube_id=url.substring(url.length()-11,url.length());
+                            Log.v(TAG,"Youtube video clicked "+ youtube_id);
+                            Intent mIntent = new Intent(mContext, youtube_player_activity.class);
+                            mIntent.putExtra("youtube_video_id",youtube_id);
+                            mContext.startActivity(mIntent);
+                        }
+                        else {
+                            Intent mIntent = new Intent(mContext, PlayerActivity.class);
+                            Bundle bundle = new Bundle();
+                            bundle.putString("URL", downloadurl.get(position));
+                            Log.v(TAG, "Download URL" + downloadurl.get(position));
+                            bundle.putString("Description", description.get(position));
+                            mIntent.putExtras(bundle);
+                            mContext.startActivity(mIntent);
+                        }
                     }
                     catch (NullPointerException e){
                         Log.v(TAG,"NULL pointer at description "+e);
                     }
                 }
             });
-//            holder.tags.(tags.get(position));
     }
 
     @Override

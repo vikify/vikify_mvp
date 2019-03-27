@@ -61,9 +61,6 @@ public class horizontalAdapter extends RecyclerView.Adapter<horizontalAdapter.My
 
 
 
-
-
-
     @NonNull
     @Override
     public horizontalAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -81,28 +78,29 @@ public class horizontalAdapter extends RecyclerView.Adapter<horizontalAdapter.My
             @Override
             public void onClick(View v) {
                Log.v("TAG","position "+holder.mCreator.getText().toString());
-                Intent mIntent = new Intent(mContext,PlayerActivity.class);
-                Bundle extras = new Bundle();
-                extras.putString("URL",mVideoList.get(position).getmVideoURL());
-                extras.putString("Description",mVideoList.get(position).getDesc());
-                mIntent.putExtras(extras);
-                mContext.startActivity(mIntent);
-           //    mContext.startActivity(new Intent(mContext, PlayerActivity.class));
-              Log.v("TAG", "Bucket"+ mVideoList.get(position).getmVideoURL());
+               if(!mVideoList.get(position).getmVideoURL().contains("uniqueTimeStamp")){
+                   String youtube_url_string=mVideoList.get(position).getmVideoURL().toString();
+                   String youtube_id=youtube_url_string.substring(youtube_url_string.length()-11,youtube_url_string.length());
+                   Log.v(TAG,"Youtube video clicked "+ youtube_id);
+                   Intent mIntent = new Intent(mContext, youtube_player_activity.class);
+                   mIntent.putExtra("youtube_video_id",youtube_id);
+                   mContext.startActivity(mIntent);
+               }
+               else {
+                   Intent mIntent = new Intent(mContext, PlayerActivity.class);
+                   Bundle extras = new Bundle();
+                   extras.putString("URL", mVideoList.get(position).getmVideoURL());
+                   Log.v(TAG, "Testing click for youtube" + mVideoList.get(position).getmVideoURL());
+                   extras.putString("Description", mVideoList.get(position).getDesc());
+                   mIntent.putExtras(extras);
+                   mContext.startActivity(mIntent);
+                   //    mContext.startActivity(new Intent(mContext, PlayerActivity.class));
+                   Log.v("TAG", "Bucket" + mVideoList.get(position).getmVideoURL());
+               }
             }
         });
 
     }
-
-//    public void startVideo(Task<Uri> mStorageRef){
-//        Intent mIntent= new Intent(mContext,PlayerActivity.class);
-//
-//        Log.v("TAG","URLVIDS"+mStorageRef);
-//        mContext.startActivity(mIntent);
-//    }
-
-
-
 
 
     @Override
