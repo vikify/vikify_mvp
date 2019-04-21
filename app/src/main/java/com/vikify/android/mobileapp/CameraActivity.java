@@ -186,18 +186,18 @@ public class CameraActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // cameraView.capturePicture();
-                 circularProgressBar.setVisibility(View.VISIBLE);
+                circularProgressBar.setVisibility(View.VISIBLE);
                 circularProgressBar.setProgressWithAnimation(100, animationDuration);
                 countDownTimer.start();
                 Log.v("TAG","mfile"+mfile);
 
                 cameraView.startCapturingVideo(mfile);
                 Toast.makeText(getApplicationContext(),"Started",Toast.LENGTH_SHORT).show();
-               mButton.setVisibility(View.GONE);
-               stopBtn.setVisibility(View.VISIBLE);
-               mUButton.setVisibility(View.GONE);
-               replayBtn.setVisibility(View.GONE);
-               progressBar.setVisibility(View.GONE);
+                mButton.setVisibility(View.GONE);
+                stopBtn.setVisibility(View.VISIBLE);
+                mUButton.setVisibility(View.GONE);
+                replayBtn.setVisibility(View.GONE);
+                progressBar.setVisibility(View.GONE);
                 mSaveButton.setVisibility(View.GONE);
 
             }
@@ -428,12 +428,8 @@ public class CameraActivity extends AppCompatActivity {
         passCreatorUID(uid);
         passCreatorName(name);
         Log.v("CAMUID","UID"+uid);
-
-
         textView=findViewById(R.id.textView);
         textView.setVisibility(View.GONE);
-
-
     }
 
     @Override
@@ -478,10 +474,6 @@ public class CameraActivity extends AppCompatActivity {
         final long uniqueTimeStamp=System.currentTimeMillis()/1000;
         return uniqueTimeStamp;
     }
-
-
-
-
 
 
     private void sendDataToFirebase(String filePath, final String name, final List<String> selectedTags, final String description){
@@ -569,27 +561,25 @@ public class CameraActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(Uri uri) {
                     String url = uri.toString();
-                    finalLoadMethod(name,selectedtags,Ref,url,creatorName,uniqueTimeStamp,description);
-                    Log.v(TAG,"URIIS"+uri);
-
-
+                    finalLoadMethod(name,selectedtags,url,creatorName,uniqueTimeStamp,description);
+                    Log.v(TAG,"URIS"+uri);
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    Log.v(TAG,"Failed");
+                    Log.v(TAG,"Failed "+e);
                 }
             });
         }
 
     }
 
-    public void finalLoadMethod(String name,List<String> selectedtags,StorageReference Ref, String uri,String creatorName, long uniqueTimeStamp,String description){
+    public void finalLoadMethod(String name,List<String> selectedtags, String uri,String creatorName, long uniqueTimeStamp,String description){   //ref is removed from a parameter
 
         VideoDetailsClass videoName=new VideoDetailsClass(name,selectedtags,uri,creatorName,description);
         String timeStamp=Long.toString(uniqueTimeStamp);
         Log.v(TAG,"Name "+name+"Tags "+selectedtags+"URI "+uri+ " Description "+description);
-       mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
        try {
            mDatabase.child("VikifyDatabase").child("Video-details").child("Video By "+creatorName+" At "+timeStamp+" CreatorUID"+mCreatorUID).setValue(videoName);
        }

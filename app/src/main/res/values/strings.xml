@@ -23,4 +23,5 @@
     <string name="title_activity_saved_videos">SavedVideos</string>
     <string name="is_this_video_a_question_you_would_like_answered">Is this video a question you would like answered?</string>
     <string name="enter_your_phone_number">+919999999999</string>
+    <string name="upload_youtube_video">Upload a Youtube Video</string>
 </resources>
